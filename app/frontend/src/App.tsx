@@ -95,6 +95,10 @@ export default function App() {
     [taskFilter, setTaskFilter] = useState("upcoming");
   const [source, setSource] = useState<Source | null>(null),
     [note, setNote] = useState(""),
+    [scheduleDate, setScheduleDate] = useState(""),
+    [scheduleTime, setScheduleTime] = useState(""),
+    [scheduleEndDate, setScheduleEndDate] = useState(""),
+    [scheduleEndTime, setScheduleEndTime] = useState(""),
     [report, setReport] = useState<{ facts: Fact[]; notice: string } | null>(
       null,
     );
@@ -241,13 +245,27 @@ export default function App() {
     docFacts.find((f) => f.id === reviewFact) ||
     docFacts.find((f) => f.status === "pending") ||
     docFacts[0];
+  useEffect(() => {
+    setScheduleDate(currentFact?.scheduled_date || "");
+    setScheduleTime(currentFact?.scheduled_time || "");
+    setScheduleEndDate(currentFact?.scheduled_end_date || "");
+    setScheduleEndTime(currentFact?.scheduled_end_time || "");
+  }, [currentFact?.id, currentFact?.version]);
   async function review(status: string) {
     if (!currentFact) return;
     await action(
       async () => {
         await api("/facts/" + currentFact.id, {
           method: "PATCH",
-          body: JSON.stringify({ status, version: currentFact.version, note }),
+          body: JSON.stringify({
+            status,
+            version: currentFact.version,
+            note,
+            scheduled_date: scheduleDate || null,
+            scheduled_time: scheduleTime || null,
+            scheduled_end_date: scheduleEndDate || null,
+            scheduled_end_time: scheduleEndTime || null,
+          }),
         });
         setReviewFact(null);
         setNote("");
@@ -921,6 +939,13 @@ export default function App() {
                         <h3 className="fact-date">
                           {shortDate(currentFact.scheduled_date)}{" "}
                           {currentFact.scheduled_time || "时间未指定"}
+                          {currentFact.scheduled_end_date && (
+                            <>
+                              {" 至 "}
+                              {shortDate(currentFact.scheduled_end_date)}{" "}
+                              {currentFact.scheduled_end_time || "时间未指定"}
+                            </>
+                          )}
                         </h3>
                       )}
                       <blockquote>{currentFact.quote}</blockquote>
@@ -936,6 +961,47 @@ export default function App() {
                             这条信息没有明确可执行日期，确认后会保留在档案中，不自动生成日程。
                           </p>
                         )}
+                      {currentFact.schedule_basis && (
+                        <p className="notice-box">{currentFact.schedule_basis}</p>
+                      )}
+                      {["复诊", "检查", "治疗", "用药"].includes(
+                        currentFact.category,
+                      ) && (
+                        <div className="schedule-editor">
+                          <label className="field">
+                            开始日期
+                            <input
+                              type="date"
+                              value={scheduleDate}
+                              onChange={(e) => setScheduleDate(e.target.value)}
+                            />
+                          </label>
+                          <label className="field">
+                            开始时间
+                            <input
+                              type="time"
+                              value={scheduleTime}
+                              onChange={(e) => setScheduleTime(e.target.value)}
+                            />
+                          </label>
+                          <label className="field">
+                            结束日期（可选）
+                            <input
+                              type="date"
+                              value={scheduleEndDate}
+                              onChange={(e) => setScheduleEndDate(e.target.value)}
+                            />
+                          </label>
+                          <label className="field">
+                            结束时间（可选）
+                            <input
+                              type="time"
+                              value={scheduleEndTime}
+                              onChange={(e) => setScheduleEndTime(e.target.value)}
+                            />
+                          </label>
+                        </div>
+                      )}
                       {currentFact.conflict && (
                         <p className="notice-box">
                           与已有资料中的安排可能不同。请对照两份资料，并填写核对说明。

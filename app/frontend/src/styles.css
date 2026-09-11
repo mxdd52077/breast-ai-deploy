@@ -818,6 +818,15 @@ textarea {
   margin-bottom: 19px;
   color: #736668;
 }
+.schedule-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+  margin-top: 18px;
+}
+.schedule-editor input {
+  width: 100%;
+}
 .review-actions {
   display: flex;
   flex-direction: column;

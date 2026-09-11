@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class Strict(BaseModel):
     model_config=ConfigDict(extra="forbid")
@@ -13,6 +13,24 @@ class Review(Strict):
     status:Literal["pending","confirmed","rejected"]
     version:int=Field(ge=1)
     note:str=Field(default="",max_length=500)
+    scheduled_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+    scheduled_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+    scheduled_end_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+    scheduled_end_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+
+    @model_validator(mode="after")
+    def valid_schedule_window(self):
+        if self.scheduled_time and not self.scheduled_date:
+            raise ValueError("填写时间前请先填写日期。")
+        if (self.scheduled_end_date or self.scheduled_end_time) and not self.scheduled_date:
+            raise ValueError("结束时间需要开始日期。")
+        if self.scheduled_end_time and not self.scheduled_end_date:
+            raise ValueError("填写结束时间前请先填写结束日期。")
+        start=(self.scheduled_date or "",self.scheduled_time or "00:00")
+        end=(self.scheduled_end_date or "",self.scheduled_end_time or "23:59")
+        if self.scheduled_end_date and end<start:
+            raise ValueError("结束时间不能早于开始时间。")
+        return self
 
 class TaskUpdate(Strict):
     status:Literal["pending","completed","skipped"]

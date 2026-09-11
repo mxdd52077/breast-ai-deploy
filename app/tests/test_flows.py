@@ -12,6 +12,7 @@ from PIL import Image
 from app.backend.main import app
 from app.backend.db import Session,Document,Fact,Task,Job,DATA
 from app.backend.worker import process_one
+from app.backend import providers
 from app.backend.providers import parse_pages,extract_facts,absolute_date,ServiceError,ocr_document
 from app.backend.contracts import Extraction,Answer
 
@@ -204,6 +205,27 @@ def test_kimi_schedule_requires_source_date(monkeypatch):
     assert extract_facts(pages)[0][0]['scheduled_date']=='2030-09-10'
     monkeypatch.setattr('app.backend.providers.chat_json',lambda *args:result('2030-09-11'))
     assert extract_facts(pages)[0][0]['scheduled_date'] is None
+
+def test_relative_hour_window_uses_later_document_timestamp_as_review_candidate():
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':'医嘱：化疗结束后24小时至48小时使用艾多6mg皮下注射一次。医务人员签名：日期：2024年07月10日 09:14。'}]
+    infer=getattr(providers,'infer_relative_schedules',lambda _:[])
+    item=infer(pages)[0]
+    assert item['quote']=='化疗结束后24小时至48小时使用艾多6mg皮下注射一次'
+    assert (item['scheduled_date'],item['scheduled_time'])==('2024-07-11','09:14')
+    assert (item['scheduled_end_date'],item['scheduled_end_time'])==('2024-07-12','09:14')
+    assert '2024-07-10 09:14' in item['schedule_basis']
+
+def test_review_can_set_missing_time_and_window_before_creating_task(demo):
+    created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
+    assert process_one(created['id'])
+    fact=next(f for f in workspace(demo)['facts'] if f['document_id']==created['id'])
+    payload={'status':'confirmed','version':fact['version'],'note':'已人工核对时间','scheduled_date':'2030-09-10','scheduled_time':'14:30','scheduled_end_date':'2030-09-10','scheduled_end_time':'16:30'}
+    response=demo.patch('/api/facts/'+fact['id'],json=payload)
+    assert response.status_code==200,response.text
+    updated=next(f for f in workspace(demo)['facts'] if f['id']==fact['id'])
+    task=next(t for t in workspace(demo)['tasks'] if t['fact_id']==fact['id'])
+    assert (updated['scheduled_time'],updated['scheduled_end_time'])==('14:30','16:30')
+    assert (task['due_date'],task['due_time'],task['due_end_date'],task['due_end_time'])==('2030-09-10','14:30','2030-09-10','16:30')
 
 def test_institution_data_check_aggregates_only(demo):
     content='patient_id,as_of_date,age,last_screen_date,never_screened,has_active_appointment,outreach_consent,is_synthetic\nTEST-PRIVATE-ID,2026-09-01,55,2023-01-01,false,false,true,true\n'

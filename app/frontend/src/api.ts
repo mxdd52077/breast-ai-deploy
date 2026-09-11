@@ -28,6 +28,9 @@ export type Fact = {
   status: string;
   scheduled_date: string | null;
   scheduled_time: string | null;
+  scheduled_end_date: string | null;
+  scheduled_end_time: string | null;
+  schedule_basis: string;
   conflict: boolean;
   note: string;
   version: number;
@@ -38,6 +41,8 @@ export type Task = {
   title: string;
   due_date: string;
   due_time: string | null;
+  due_end_date: string | null;
+  due_end_time: string | null;
   category: string;
   status: string;
   active: boolean;

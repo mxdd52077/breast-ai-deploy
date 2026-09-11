@@ -181,6 +181,12 @@ export function TaskRow({
         <div className="task-meta">
           <span>
             {shortDate(task.due_date)} {task.due_time || "时间未指定"}
+            {task.due_end_date && (
+              <>
+                {" 至 "}
+                {shortDate(task.due_end_date)} {task.due_end_time || "时间未指定"}
+              </>
+            )}
           </span>
           {overdue && <span className="overdue">待补记</span>}
           {!task.active && <span className="badge pending">来源待核对</span>}

@@ -76,9 +76,9 @@ def doc_json(d,facts):
     related=[f for f in facts if f.document_id==d.id]
     return {"id":d.id,"name":d.name,"size":d.size,"status":d.status,"error":d.error,"method":d.method,"created":d.created,"pages":len(d.pages),"pending":sum(f.status=="pending" for f in related),"fact_count":len(related),"extension":d.extension}
 def fact_json(f):
-    return {k:getattr(f,k) for k in ["id","document_id","category","value","quote","page","location","status","scheduled_date","scheduled_time","conflict","note","version"]}
+    return {k:getattr(f,k) for k in ["id","document_id","category","value","quote","page","location","status","scheduled_date","scheduled_time","scheduled_end_date","scheduled_end_time","schedule_basis","conflict","note","version"]}
 def task_json(t):
-    return {k:getattr(t,k) for k in ["id","fact_id","title","due_date","due_time","category","status","active","version"]}
+    return {k:getattr(t,k) for k in ["id","fact_id","title","due_date","due_time","due_end_date","due_end_time","category","status","active","version"]}
 
 @app.get("/api/health")
 def health(): return {"status":"ok"}
@@ -214,17 +214,23 @@ def review(key:str,body:Review,user=Depends(current_user)):
     with Session() as db:
         fact=own(db,Fact,key,user)
         if fact.conflict and body.status=="confirmed" and not body.note.strip(): raise HTTPException(400,"此安排与已有资料可能不同，请填写核对说明后确认。")
-        changed=db.execute(update(Fact).where(Fact.id==key,Fact.user_id==user.id,Fact.version==body.version).values(status=body.status,note=body.note,version=Fact.version+1))
+        values={"status":body.status,"note":body.note,"version":Fact.version+1}
+        schedule_fields=["scheduled_date","scheduled_time","scheduled_end_date","scheduled_end_time"]
+        for field in schedule_fields:
+            if field in body.model_fields_set: values[field]=getattr(body,field)
+        changed=db.execute(update(Fact).where(Fact.id==key,Fact.user_id==user.id,Fact.version==body.version).values(**values))
         if changed.rowcount!=1: raise HTTPException(409,"这条资料已更新，请刷新后再核对。")
         fact.status=body.status; fact.note=body.note
+        for field in schedule_fields:
+            if field in body.model_fields_set: setattr(fact,field,getattr(body,field))
         document=db.get(Document,fact.document_id)
         sync_fact_chunk(db,fact,document)
         task=db.scalar(select(Task).where(Task.fact_id==fact.id))
         if body.status=="confirmed" and fact.scheduled_date:
             if task:
                 if not task.active: task.version+=1
-                task.active=True  # Preserve completion and history on unchanged re-confirm.
-            else: db.add(Task(user_id=user.id,fact_id=fact.id,title=fact.value,due_date=fact.scheduled_date,due_time=fact.scheduled_time,category=fact.category))
+                task.active=True;task.due_date=fact.scheduled_date;task.due_time=fact.scheduled_time;task.due_end_date=fact.scheduled_end_date;task.due_end_time=fact.scheduled_end_time
+            else: db.add(Task(user_id=user.id,fact_id=fact.id,title=fact.value,due_date=fact.scheduled_date,due_time=fact.scheduled_time,due_end_date=fact.scheduled_end_date,due_end_time=fact.scheduled_end_time,category=fact.category))
         elif task:
             if task.active: task.version+=1
             task.active=False
@@ -260,7 +266,7 @@ def confirm_schedules(body:BatchReview,user=Depends(current_user)):
                 if not task.active: task.version+=1
                 task.active=True
             elif fact.scheduled_date:
-                db.add(Task(user_id=user.id,fact_id=fact.id,title=fact.value,due_date=fact.scheduled_date,due_time=fact.scheduled_time,category=fact.category))
+                db.add(Task(user_id=user.id,fact_id=fact.id,title=fact.value,due_date=fact.scheduled_date,due_time=fact.scheduled_time,due_end_date=fact.scheduled_end_date,due_end_time=fact.scheduled_end_time,category=fact.category))
             audit(db,user.id,"fact_batch_confirmed",fact.id,{"previous_version":item.version})
         db.commit()
     return {"confirmed":len(body.items)}
