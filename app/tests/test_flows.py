@@ -215,6 +215,26 @@ def test_relative_hour_window_uses_later_document_timestamp_as_review_candidate(
     assert (item['scheduled_end_date'],item['scheduled_end_time'])==('2024-07-12','09:14')
     assert '2024-07-10 09:14' in item['schedule_basis']
 
+def test_relative_week_schedule_uses_nearest_prior_treatment_date():
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':'处理意见：2024-7-9行第1周期PCb-EC方案治疗。离院建议：2、三周后返院行下一周期化疗；日期：2024年07月10日 09:14。'}]
+    item=next(x for x in providers.infer_relative_schedules(pages) if x['category']=='治疗')
+    assert item['quote']=='三周后返院行下一周期化疗'
+    assert (item['scheduled_date'],item['scheduled_time'])==('2024-07-30',None)
+    assert item['scheduled_end_date'] is None
+    assert '同页前文治疗日期 2024-07-09' in item['schedule_basis']
+
+def test_relative_schedule_merges_with_kimi_quote_prefix(monkeypatch):
+    monkeypatch.setenv('APEX_LLM_API_KEY','test')
+    text='处理意见：2024-7-9行第1周期方案治疗。离院建议：2、三周后返院行下一周期化疗；'
+    quote='2、三周后返院行下一周期化疗'
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    extracted=Extraction.model_validate({'facts':[{'quote':quote,'page':1,'category':'治疗','is_schedule':True,'scheduled_date':None,'scheduled_time':None}]})
+    monkeypatch.setattr('app.backend.providers.chat_json',lambda *args:extracted)
+    facts,_=extract_facts(pages)
+    treatment=[item for item in facts if '三周后' in item['quote']]
+    assert len(treatment)==1
+    assert treatment[0]['scheduled_date']=='2024-07-30'
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
