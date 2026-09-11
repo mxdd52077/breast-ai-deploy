@@ -937,6 +937,17 @@ textarea {
 .chat-content {
   padding-bottom: 0;
 }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 .chat-layout {
   height: calc(100dvh - 119px);
   display: flex;
@@ -982,6 +993,46 @@ textarea {
   border-radius: 13px;
   padding: 12px;
 }
+.chat-attach {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff0ee;
+  color: var(--coral);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.chat-input-stack {
+  min-width: 0;
+  flex: 1;
+}
+.attachment-chip {
+  width: fit-content;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  margin-bottom: 6px;
+  border-radius: 9px;
+  background: #fff0ee;
+  color: #9f595c;
+  font-size: 12px;
+}
+.attachment-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment-chip button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  display: grid;
+}
 .chat-composer textarea {
   border: 0;
   flex: 1;
@@ -989,6 +1040,63 @@ textarea {
   height: 60px;
   background: transparent;
   font-size: 14px;
+}
+.agent-action-card {
+  margin-top: 16px;
+  padding: 17px;
+  border: 1px solid #e9c8c4;
+  border-left: 4px solid var(--coral);
+  border-radius: 4px 14px 14px 4px;
+  background: linear-gradient(135deg, #fffaf9, #fff);
+}
+.agent-action-head,
+.agent-action-kicker,
+.agent-action-buttons {
+  display: flex;
+  align-items: center;
+}
+.agent-action-head {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.agent-action-kicker {
+  gap: 6px;
+  color: #a45d61;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.agent-action-card > p {
+  color: var(--muted);
+  margin: 8px 0 14px;
+}
+.agent-action-card > small {
+  display: block;
+  color: #9b7772;
+  margin-top: 11px;
+}
+.agent-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.agent-action-grid label {
+  display: grid;
+  gap: 6px;
+  color: #7e6b68;
+  font-size: 11px;
+}
+.agent-action-grid input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px;
+  background: #fff;
+}
+.agent-action-buttons {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
 }
 .chat-footnote {
   text-align: center;
@@ -1818,6 +1926,15 @@ textarea {
   }
   .chat-composer button {
     padding: 9px;
+  }
+  .chat-composer .attachment-chip button {
+    padding: 0;
+  }
+  .agent-action-grid {
+    grid-template-columns: 1fr;
+  }
+  .agent-action-buttons > button {
+    flex: 1 1 auto;
   }
   .chat-footnote {
     font-size: 9px;

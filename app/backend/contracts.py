@@ -46,6 +46,33 @@ class BatchReview(Strict):
 class Question(Strict):
     question:str=Field(min_length=1,max_length=1500)
 
+class CalendarProposal(Strict):
+    has_action:bool=False
+    title:str=Field(default="",max_length=120)
+    category:Literal["复诊","检查","治疗","用药","其他"]="其他"
+    scheduled_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+    scheduled_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+    scheduled_end_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+    scheduled_end_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+    clarification:str=Field(default="",max_length=300)
+
+    @model_validator(mode="after")
+    def valid_calendar_action(self):
+        from datetime import date
+        for value in [self.scheduled_date,self.scheduled_end_date]:
+            if value: date.fromisoformat(value)
+        if self.scheduled_time and not self.scheduled_date:
+            raise ValueError("日历时间缺少日期。")
+        if (self.scheduled_end_date or self.scheduled_end_time) and not self.scheduled_date:
+            raise ValueError("日历结束时间缺少开始日期。")
+        if self.scheduled_end_time and not self.scheduled_end_date:
+            raise ValueError("日历结束时间缺少结束日期。")
+        start=(self.scheduled_date or "",self.scheduled_time or "00:00")
+        end=(self.scheduled_end_date or "",self.scheduled_end_time or "23:59")
+        if self.scheduled_end_date and end<start:
+            raise ValueError("日历结束时间早于开始时间。")
+        return self
+
 class ExtractedFact(Strict):
     category:Literal["复诊","检查","用药","诊断","病理","治疗","其他"]
     quote:str=Field(min_length=1,max_length=1200)

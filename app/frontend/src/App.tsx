@@ -22,6 +22,7 @@ import {
   FolderHeart,
   Heart,
   Home,
+  ImagePlus,
   LayoutDashboard,
   LoaderCircle,
   LogOut,
@@ -1130,7 +1131,13 @@ export default function App() {
               </div>
             </>
           )}
-          {page === "chat" && <Chat onError={setError} />}
+          {page === "chat" && (
+            <Chat
+              onError={setError}
+              onChanged={refresh}
+              onOpenReview={openReview}
+            />
+          )}
           {page === "settings" && (
             <>
               <div className="page-title">
@@ -1609,37 +1616,175 @@ function UploadModal({
   );
 }
 
-function Chat({ onError }: { onError: (e: string) => void }) {
+function CalendarActionCard({
+  action,
+  onSaved,
+  onOpenReview,
+}: {
+  action: Fact;
+  onSaved: () => Promise<void>;
+  onOpenReview: (documentId: string, factId?: string) => void;
+}) {
+  const [date, setDate] = useState(action.scheduled_date || ""),
+    [clock, setClock] = useState(action.scheduled_time || ""),
+    [endDate, setEndDate] = useState(action.scheduled_end_date || ""),
+    [endClock, setEndClock] = useState(action.scheduled_end_time || ""),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  async function save(status: "confirmed" | "rejected") {
+    setBusy(true);
+    setError("");
+    try {
+      await api("/facts/" + action.id, {
+        method: "PATCH",
+        body: JSON.stringify({
+          status,
+          version: action.version,
+          note: "通过照护 Agent 核对",
+          scheduled_date: date || null,
+          scheduled_time: clock || null,
+          scheduled_end_date: endDate || null,
+          scheduled_end_time: endClock || null,
+        }),
+      });
+      await onSaved();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="agent-action-card">
+      <div className="agent-action-head">
+        <span className="agent-action-kicker">
+          <CalendarDays size={15} /> 日历草稿
+        </span>
+        <Badge status={action.status} />
+      </div>
+      <strong>{action.value}</strong>
+      <p>{action.quote}</p>
+      <div className="agent-action-grid">
+        <label>
+          日期
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </label>
+        <label>
+          时间（可选）
+          <input type="time" value={clock} onChange={(e) => setClock(e.target.value)} />
+        </label>
+        {(endDate || action.scheduled_end_date) && (
+          <>
+            <label>
+              结束日期
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            </label>
+            <label>
+              结束时间
+              <input type="time" value={endClock} onChange={(e) => setEndClock(e.target.value)} />
+            </label>
+          </>
+        )}
+      </div>
+      {action.schedule_basis && <small>{action.schedule_basis}</small>}
+      {error && <p className="form-error">{error}</p>}
+      <div className="agent-action-buttons">
+        <button
+          className="primary"
+          disabled={!date || busy}
+          onClick={() => void save("confirmed")}
+        >
+          <CheckCircle2 size={17} />
+          {action.status === "confirmed" ? "更新照护计划" : "确认加入日历"}
+        </button>
+        {action.status === "pending" && (
+          <button className="outline" disabled={busy} onClick={() => void save("rejected")}>
+            暂不加入
+          </button>
+        )}
+        <button className="text-btn" onClick={() => onOpenReview(action.document_id, action.id)}>
+          查看原始依据
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function Chat({
+  onError,
+  onChanged,
+  onOpenReview,
+}: {
+  onError: (e: string) => void;
+  onChanged: () => Promise<void>;
+  onOpenReview: (documentId: string, factId?: string) => void;
+}) {
   const [messages, setMessages] = useState<Message[]>([]),
     [question, setQuestion] = useState(""),
-    [busy, setBusy] = useState(false);
+    [attachment, setAttachment] = useState<File | null>(null),
+    [busy, setBusy] = useState(false),
+    [agentStatus, setAgentStatus] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const reloadMessages = useCallback(async () => {
+    setMessages(await api<Message[]>("/messages"));
+  }, []);
   useEffect(() => {
-    api<Message[]>("/messages")
-      .then(setMessages)
-      .catch((e) => onError(e.message));
-  }, [onError]);
+    reloadMessages().catch((e) => onError(e.message));
+  }, [onError, reloadMessages]);
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, busy]);
   async function send(q = question) {
-    if (!q.trim() || busy) return;
+    if ((!q.trim() && !attachment) || busy) return;
     const prompt = q.trim(),
+      selectedFile = attachment,
       userId = "pending-user-" + Date.now(),
       answerId = "pending-answer-" + Date.now();
     setBusy(true);
     setQuestion("");
+    setAttachment(null);
     setMessages((current) => [
       ...current,
       {
         id: userId,
         role: "user",
-        text: prompt,
+        text: [selectedFile ? `上传资料：${selectedFile.name}` : "", prompt]
+          .filter(Boolean)
+          .join("\n"),
         citations: [],
         status: "supported",
+        actions: [],
       },
     ]);
     try {
+      if (selectedFile) {
+        setAgentStatus("正在识别图片并整理可执行安排…");
+        const form = new FormData();
+        form.append("file", selectedFile);
+        const uploaded = await api<{ id: string }>("/documents", {
+          method: "POST",
+          body: form,
+        });
+        await api(`/agent/documents/${uploaded.id}`, {
+          method: "POST",
+          body: JSON.stringify({
+            question: prompt || "请识别资料里的安排并整理成日历草稿。",
+          }),
+        });
+        await Promise.all([reloadMessages(), onChanged()]);
+        return;
+      }
+      setAgentStatus("正在判断是否需要调用日历工具…");
+      const routed = await api<{ handled: boolean }>("/agent/calendar", {
+        method: "POST",
+        body: JSON.stringify({ question: prompt }),
+      });
+      if (routed.handled) {
+        await Promise.all([reloadMessages(), onChanged()]);
+        return;
+      }
+      setAgentStatus("正在核对相关依据…");
       let streamError = "";
       await streamQuestion(prompt, (event) => {
         if (event.type === "delta")
@@ -1656,6 +1801,7 @@ function Chat({ onError }: { onError: (e: string) => void }) {
                     text: event.text,
                     citations: [],
                     status: "supported",
+                    actions: [],
                   },
                 ],
           );
@@ -1675,15 +1821,17 @@ function Chat({ onError }: { onError: (e: string) => void }) {
         if (event.type === "error") streamError = event.message;
       });
       if (streamError) throw new Error(streamError);
-      setMessages(await api("/messages"));
+      await reloadMessages();
     } catch (e) {
       setMessages((current) =>
         current.filter((m) => m.id !== userId && m.id !== answerId),
       );
       setQuestion(prompt);
+      setAttachment(selectedFile);
       onError((e as Error).message);
     } finally {
       setBusy(false);
+      setAgentStatus("");
     }
   }
   return (
@@ -1762,6 +1910,16 @@ function Chat({ onError }: { onError: (e: string) => void }) {
                   ))}
                 </div>
               )}
+              {(m.actions || []).map((action) => (
+                <CalendarActionCard
+                  key={action.id}
+                  action={action}
+                  onOpenReview={onOpenReview}
+                  onSaved={async () => {
+                    await Promise.all([reloadMessages(), onChanged()]);
+                  }}
+                />
+              ))}
               {m.role === "assistant" && m.status !== "supported" && (
                 <span className="badge pending">
                   {m.status === "safety_escalation"
@@ -1779,7 +1937,7 @@ function Chat({ onError }: { onError: (e: string) => void }) {
             </div>
             <div className="message-body">
               <LoaderCircle size={18} className="spin" />
-              正在核对相关依据…
+              {agentStatus || "正在整理…"}
             </div>
           </div>
         )}
@@ -1792,9 +1950,44 @@ function Chat({ onError }: { onError: (e: string) => void }) {
           void send();
         }}
       >
+        <input
+          ref={fileInput}
+          className="visually-hidden"
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp,.pdf,.docx,.txt"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            if (file && file.size > 10 * 1024 * 1024) {
+              onError("每个文件不能超过10MB。");
+              e.target.value = "";
+              return;
+            }
+            setAttachment(file);
+            e.target.value = "";
+          }}
+        />
+        <button
+          type="button"
+          className="chat-attach"
+          aria-label="上传病历图片"
+          disabled={busy}
+          onClick={() => fileInput.current?.click()}
+        >
+          <ImagePlus size={20} />
+        </button>
+        <div className="chat-input-stack">
+          {attachment && (
+            <div className="attachment-chip">
+              <ImagePlus size={15} />
+              <span>{attachment.name}</span>
+              <button type="button" aria-label="移除附件" onClick={() => setAttachment(null)}>
+                <X size={14} />
+              </button>
+            </div>
+          )}
         <textarea
           aria-label="你的问题"
-          placeholder="写下你想了解的问题…"
+          placeholder="问问题，或说“明天上午9点复诊，加入日历”…"
           value={question}
           maxLength={1500}
           onChange={(e) => setQuestion(e.target.value)}
@@ -1809,16 +2002,17 @@ function Chat({ onError }: { onError: (e: string) => void }) {
             }
           }}
         />
+        </div>
         <button
           className="primary"
-          disabled={!question.trim() || busy}
-          aria-label="发送问题"
+          disabled={(!question.trim() && !attachment) || busy}
+          aria-label="发送给照护 Agent"
         >
           <Send size={20} />
         </button>
       </form>
       <p className="chat-footnote">
-        内容用于健康教育和就诊准备。涉及治疗与用药，请咨询治疗团队。
+        Agent 只会生成待确认草稿；涉及治疗与用药，请以治疗团队意见为准。
       </p>
     </div>
   );

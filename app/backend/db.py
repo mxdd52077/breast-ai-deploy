@@ -142,6 +142,7 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(12))
     text: Mapped[str] = mapped_column(Text)
     citations: Mapped[list] = mapped_column(JSON, default=list)
+    action_fact_ids: Mapped[list] = mapped_column(JSON, default=list)
     status: Mapped[str] = mapped_column(String(32), default="supported")
     created: Mapped[float] = mapped_column(Float, default=time.time)
 

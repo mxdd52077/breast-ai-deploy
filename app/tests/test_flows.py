@@ -247,6 +247,31 @@ def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     assert (updated['scheduled_time'],updated['scheduled_end_time'])==('14:30','16:30')
     assert (task['due_date'],task['due_time'],task['due_end_date'],task['due_end_time'])==('2030-09-10','14:30','2030-09-10','16:30')
 
+def test_agent_natural_language_calendar_draft_requires_confirmation(demo,monkeypatch):
+    class Proposal:
+        has_action=True;title='乳腺外科复诊';category='复诊';scheduled_date='2030-09-10';scheduled_time='09:30';scheduled_end_date=None;scheduled_end_time=None;clarification=''
+    monkeypatch.setattr('app.backend.main.calendar_proposal',lambda _:Proposal(),raising=False)
+    response=demo.post('/api/agent/calendar',json={'question':'请把2030年9月10日上午9点半乳腺外科复诊加入日历'})
+    assert response.status_code==200,response.text
+    assert response.json()['handled'] is True
+    action=demo.get('/api/messages').json()[-1]['actions'][0]
+    assert action['status']=='pending' and action['scheduled_time']=='09:30'
+    assert not any(task['fact_id']==action['id'] for task in workspace(demo)['tasks'])
+    confirmed=demo.patch('/api/facts/'+action['id'],json={'status':'confirmed','version':action['version'],'note':'','scheduled_date':action['scheduled_date'],'scheduled_time':action['scheduled_time'],'scheduled_end_date':None,'scheduled_end_time':None})
+    assert confirmed.status_code==200,confirmed.text
+    assert any(task['fact_id']==action['id'] for task in workspace(demo)['tasks'])
+    assert demo.get('/api/messages').json()[-1]['actions'][0]['status']=='confirmed'
+
+def test_agent_uploaded_document_returns_reviewable_calendar_actions(demo):
+    created=upload(demo,'复诊安排：请于2030年9月10日上午9点至乳腺外科复诊。','聊天上传.txt')
+    assert process_one(created['id'])
+    response=demo.post('/api/agent/documents/'+created['id'],json={'question':'识别图片里的安排并加入日历'})
+    assert response.status_code==200,response.text
+    payload=response.json()
+    assert payload['handled'] is True and payload['action_count']==1
+    messages=demo.get('/api/messages').json()
+    assert messages[-1]['actions'][0]['scheduled_date']=='2030-09-10'
+
 def test_institution_data_check_aggregates_only(demo):
     content='patient_id,as_of_date,age,last_screen_date,never_screened,has_active_appointment,outreach_consent,is_synthetic\nTEST-PRIVATE-ID,2026-09-01,55,2023-01-01,false,false,true,true\n'
     r=demo.post('/api/institution/data-check',files={'file':('demo.csv',content.encode())})

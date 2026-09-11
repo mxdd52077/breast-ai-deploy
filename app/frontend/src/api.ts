@@ -73,6 +73,7 @@ export type Message = {
   text: string;
   citations: Citation[];
   status: string;
+  actions: Fact[];
 };
 export type Source = {
   id: string;
