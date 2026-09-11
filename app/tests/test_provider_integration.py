@@ -31,6 +31,27 @@ def test_kimi_uses_strict_schema_and_no_reasoning_output(monkeypatch):
     assert seen['response_format']['json_schema']['strict'] is True
     assert 'never expose' not in answer.answer
 
+def test_kimi_retries_transient_connect_failures(monkeypatch):
+    monkeypatch.setenv('APEX_LLM_API_KEY','fake-only')
+    monkeypatch.setenv('APEX_LLM_BASE_URL','https://api.moonshot.cn/v1')
+    request=httpx.Request('POST','https://api.moonshot.cn/v1/chat/completions')
+
+    class FlakyClient:
+        attempts=0
+        def __enter__(self):return self
+        def __exit__(self,*args):return False
+        def post(self,*args,**kwargs):
+            self.attempts+=1
+            if self.attempts<3:
+                raise httpx.ConnectTimeout('temporary timeout',request=request)
+            return httpx.Response(200,request=request,json={'choices':[{'finish_reason':'stop','message':{'content':json.dumps({'answer':'已恢复','status':'supported','citations':['source-1']})}}]})
+
+    client=FlakyClient()
+    with patch('app.backend.providers.httpx.Client',return_value=client):
+        answer=chat_json('system','fictional',Answer)
+    assert client.attempts==3
+    assert answer.answer=='已恢复'
+
 def test_graph_followup_context_does_not_leak_between_invocations(monkeypatch):
     from app.backend.main import knowledge
     monkeypatch.setenv('APEX_LLM_API_KEY','fake-only')

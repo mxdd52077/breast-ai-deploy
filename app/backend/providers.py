@@ -107,8 +107,13 @@ def chat_json(system, content, schema):
         body['reasoning_effort']=os.getenv('APEX_LLM_REASONING_EFFORT','low')
         body['response_format']={'type':'json_schema','json_schema':{'name':schema.__name__,'strict':True,'schema':schema.model_json_schema()}}
     try:
-        with httpx.Client(timeout=httpx.Timeout(90,connect=10),follow_redirects=False) as client:
-            response=client.post(base+"/chat/completions",headers={"Authorization":f"Bearer {key}"},json=body)
+        with httpx.Client(timeout=httpx.Timeout(90,connect=20),follow_redirects=False) as client:
+            for attempt in range(3):
+                try:
+                    response=client.post(base+"/chat/completions",headers={"Authorization":f"Bearer {key}"},json=body)
+                    break
+                except (httpx.ConnectTimeout,httpx.ConnectError):
+                    if attempt==2: raise
             response.raise_for_status()
             choice=response.json()["choices"][0]
             if choice.get('finish_reason')!='stop':raise ServiceError('智能结果未完整生成，本次结果未采用，请重试。')
