@@ -1,0 +1,2 @@
+patient_id,as_of_date,age,last_screen_date,never_screened,has_active_appointment,outreach_consent,is_synthetic
+FAKE-001,2026-09-01,55,2023-01-01,false,false,true,true

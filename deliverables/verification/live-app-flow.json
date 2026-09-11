@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "fictional_data_only": true,
+  "live_ocr_and_extraction": true,
+  "pages": 2,
+  "facts": 2,
+  "pending_by_default": true,
+  "task_completion_survives_reconfirmation": true,
+  "duplicate_upload_preserves_document": true,
+  "fresh_client_persistence": true,
+  "other_account_file_denied": true
+}

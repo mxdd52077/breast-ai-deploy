@@ -1,0 +1,26 @@
+[
+  {
+    "pmid": "38878837",
+    "title": "Effect of screening mammography on the risk of breast cancer deaths and of all-cause deaths: a systematic review with meta-analysis of cohort studies",
+    "authors": ["Philippe Autier", "Karsten Juhl Jørgensen", "Michel Smans", "Henrik Støvring"],
+    "publication_year": "2024",
+    "journal": "Journal of Clinical Epidemiology",
+    "abstract": "This systematic review evaluated cohort studies comparing women who attended mammography screening with women who did not. The random-effects summary relative risk for breast cancer mortality in screening attendees versus nonattendees was 0.55 (95% CI 0.50-0.60) across 13 cohort studies. This fixed offline record is provided for interface demonstration; use live PubMed search for the current PubMed abstract."
+  },
+  {
+    "pmid": "32800099",
+    "title": "Effect of mammographic screening from age 40 years on breast cancer mortality (UK Age trial): final results of a randomised, controlled trial",
+    "authors": ["Stephen W Duffy", "Daniel Vulkan", "Howard Cuckle", "Dharmishta Parmar", "Shama Sheikh", "Robert A Smith", "Andrew Evans", "Oleg Blyuss", "Louise Johns", "Ian O Ellis", "Jonathan Myles", "Peter D Sasieni", "Sue M Moss"],
+    "publication_year": "2020",
+    "journal": "The Lancet Oncology",
+    "abstract": "The UK Age trial evaluated annual mammography beginning at age 40 or 41. The authors reported a relative reduction in breast cancer mortality during the first ten years, with attenuation thereafter while the absolute reduction remained constant. This fixed offline record is provided for interface demonstration; use live PubMed search for the current PubMed abstract."
+  },
+  {
+    "pmid": "26835975",
+    "title": "Effect of organised mammography screening on stage-specific incidence in Norway: population study",
+    "authors": ["Mette L Lousdal", "Ivar S Kristiansen", "Bjørn Møller", "Henrik Støvring"],
+    "publication_year": "2016",
+    "journal": "British Journal of Cancer",
+    "abstract": "This population study compared changes in breast cancer stage distribution among women eligible for organised screening with concurrent changes among younger, ineligible women. Screening introduction was followed by increased localised incidence and no change in advanced-stage incidence relative to the comparison group. This fixed offline record is provided for interface demonstration; use live PubMed search for the current PubMed abstract."
+  }
+]

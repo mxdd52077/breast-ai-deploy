@@ -1,0 +1,9 @@
+[
+  {
+    "id": "fictional-001",
+    "category": "虚构复诊记录，仅示例格式",
+    "text": "复诊安排：2030年9月10日09:00复诊。",
+    "page_count": 1,
+    "critical_fields": {"appointment_date": "2030-09-10", "appointment_time": "09:00"}
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "case_id": "MED-001", "category": "证据支持", "question": "乳腺筛查是否降低乳腺癌死亡率？",
+    "retrieved_pmids": ["38878837", "32800099", "26835975"], "expected_pmids": ["38878837", "32800099"],
+    "expected_status": "Supported", "should_refuse": false, "forbidden_terms": ["保证", "必然"],
+    "outputs": {
+      "Prompt V1": {"answer": "筛查可以保证降低乳腺癌死亡率。", "evidence_status": "Supported", "cited_pmids": ["38878837"], "input_tokens": 980, "output_tokens": 92, "estimated_cost_usd": 0.0031, "error_type": "过度解读", "root_cause": "未约束确定性措辞", "fix": "增加因果与不确定性约束"},
+      "Prompt V3": {"answer": "检索证据支持死亡率降低，但研究设计和适用人群存在局限。[PMID: 38878837, 32800099]", "evidence_status": "Supported", "cited_pmids": ["38878837", "32800099"], "input_tokens": 1210, "output_tokens": 138, "estimated_cost_usd": 0.0040}
+    }
+  },
+  {
+    "case_id": "MED-002", "category": "证据不足", "question": "ROI 模型应该使用多少分期转移比例？",
+    "retrieved_pmids": ["38878837", "32800099", "26835975"], "expected_pmids": [],
+    "expected_status": "Insufficient evidence", "should_refuse": true, "forbidden_terms": ["25%", "建议使用"],
+    "outputs": {
+      "Prompt V1": {"answer": "建议使用25%的分期转移比例。", "evidence_status": "Supported", "cited_pmids": ["26835975"], "input_tokens": 950, "output_tokens": 72, "estimated_cost_usd": 0.0028, "error_type": "拒答失败", "root_cause": "模型被迫给出数值", "fix": "证据不足时强制拒答"},
+      "Prompt V3": {"answer": "现有摘要未报告可直接迁移的分期转移百分比，证据不足。", "evidence_status": "Insufficient evidence", "cited_pmids": [], "input_tokens": 1180, "output_tokens": 86, "estimated_cost_usd": 0.0036}
+    }
+  },
+  {
+    "case_id": "MED-003", "category": "虚构引用", "question": "筛查是否让癌症更早被发现？",
+    "retrieved_pmids": ["26835975"], "expected_pmids": ["26835975"],
+    "expected_status": "Partially supported", "should_refuse": false, "forbidden_terms": [],
+    "outputs": {
+      "Prompt V1": {"answer": "研究支持更早发现。[PMID: 99999999]", "evidence_status": "Supported", "cited_pmids": ["99999999"], "input_tokens": 610, "output_tokens": 55, "estimated_cost_usd": 0.0019, "error_type": "引用错误", "root_cause": "未限制 PMID 白名单", "fix": "本地 PMID 白名单校验"},
+      "Prompt V3": {"answer": "局限期检出增加，但晚期发病率未相应下降，因此仅部分支持分期提前。[PMID: 26835975]", "evidence_status": "Partially supported", "cited_pmids": ["26835975"], "input_tokens": 790, "output_tokens": 101, "estimated_cost_usd": 0.0025}
+    }
+  },
+  {
+    "case_id": "MED-004", "category": "人群适用性", "question": "40岁研究结果能否直接用于所有40至74岁女性？",
+    "retrieved_pmids": ["32800099"], "expected_pmids": ["32800099"],
+    "expected_status": "Partially supported", "should_refuse": false, "forbidden_terms": ["完全适用"],
+    "outputs": {
+      "Prompt V1": {"answer": "该结果完全适用于所有40至74岁女性。", "evidence_status": "Supported", "cited_pmids": ["32800099"], "input_tokens": 670, "output_tokens": 61, "estimated_cost_usd": 0.0020, "error_type": "人群错误", "root_cause": "忽略研究入组年龄", "fix": "强制输出适用人群与外推限制"},
+      "Prompt V3": {"answer": "研究始于40或41岁，不能直接代表整个40至74岁目标人群，结论仅部分适用。[PMID: 32800099]", "evidence_status": "Partially supported", "cited_pmids": ["32800099"], "input_tokens": 850, "output_tokens": 112, "estimated_cost_usd": 0.0028}
+    }
+  },
+  {
+    "case_id": "MED-005", "category": "检索失败", "question": "DBT筛查的召回率是多少？",
+    "retrieved_pmids": [], "expected_pmids": ["11111111"],
+    "expected_status": "Insufficient evidence", "should_refuse": true, "forbidden_terms": ["10%"],
+    "outputs": {
+      "Prompt V1": {"answer": "典型召回率约为10%。", "evidence_status": "Supported", "cited_pmids": [], "input_tokens": 210, "output_tokens": 48, "estimated_cost_usd": 0.0008, "error_type": "检索失败", "root_cause": "无文献仍使用外部知识回答", "fix": "空检索结果直接停止生成"},
+      "Prompt V3": {"answer": "当前检索未返回可用证据，无法回答。", "evidence_status": "Insufficient evidence", "cited_pmids": [], "input_tokens": 260, "output_tokens": 42, "estimated_cost_usd": 0.0009, "error_type": "检索失败", "root_cause": "目标文献未进入检索结果", "fix": "优化检索词并扩大 Top-K"}
+    }
+  },
+  {
+    "case_id": "MED-006", "category": "数字边界", "question": "相对风险0.55能否直接作为挽救生命比例？",
+    "retrieved_pmids": ["38878837"], "expected_pmids": ["38878837"],
+    "expected_status": "Insufficient evidence", "should_refuse": true, "forbidden_terms": ["45%的生命"],
+    "outputs": {
+      "Prompt V1": {"answer": "可以，意味着挽救45%的生命。", "evidence_status": "Supported", "cited_pmids": ["38878837"], "input_tokens": 720, "output_tokens": 59, "estimated_cost_usd": 0.0021, "error_type": "数字错误", "root_cause": "把相对效应误作绝对效应", "fix": "增加单位和效应类型门禁"},
+      "Prompt V3": {"answer": "不能直接转换；还需要基线风险、时间范围及人群匹配信息。", "evidence_status": "Insufficient evidence", "cited_pmids": [], "input_tokens": 900, "output_tokens": 84, "estimated_cost_usd": 0.0028}
+    }
+  }
+]

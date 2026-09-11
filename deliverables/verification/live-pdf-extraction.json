@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "ocr": "baidu-hosted-paddleocr-vl",
+  "model": "kimi-k3",
+  "page_numbers": [
+    1,
+    2
+  ],
+  "page1_date": true,
+  "page2_preparation": true,
+  "facts": 2,
+  "elapsed_seconds": 14.08,
+  "data": "generated fictional two-page scanned PDF only"
+}

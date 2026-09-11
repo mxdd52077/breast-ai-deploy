@@ -1,0 +1,47 @@
+[
+  {
+    "id": "P0-02",
+    "reproduced": true,
+    "detail": "Model-owned confirmed status survives assembly and produces a task without human review."
+  },
+  {
+    "id": "P0-03",
+    "reproduced": true,
+    "detail": "Existing quote permits inconsistent normalized fact/event/date."
+  },
+  {
+    "id": "P0-04",
+    "reproduced": true,
+    "detail": "Report overview includes unconfirmed, unreferenced profile summary."
+  },
+  {
+    "id": "P1-01",
+    "reproduced": true,
+    "detail": "Actual upload-change callback clears both existing case and task states before replacement succeeds."
+  },
+  {
+    "id": "P1-04",
+    "reproduced": true,
+    "detail": "DOCX table contents silently omitted."
+  },
+  {
+    "id": "P1-05",
+    "reproduced": true,
+    "detail": "Schema cannot represent an event with unknown date; structured extraction must omit it or fail."
+  },
+  {
+    "id": "P1-06a",
+    "reproduced": true,
+    "detail": "Same bytes under different filenames receive distinct document IDs."
+  },
+  {
+    "id": "P1-06b",
+    "reproduced": true,
+    "detail": "Duplicate fact IDs accepted; UI widget keys and review mapping cannot disambiguate them."
+  },
+  {
+    "id": "P1-07",
+    "reproduced": true,
+    "detail": "Frequency is display text only; today has no effect and recurrence is not expanded."
+  }
+]

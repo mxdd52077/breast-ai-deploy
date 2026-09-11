@@ -1,0 +1,44 @@
+[
+  {
+    "id": "nci-treatment-side-effects",
+    "title": "Side Effects of Cancer Treatment",
+    "publisher": "National Cancer Institute",
+    "source_url": "https://www.cancer.gov/about-cancer/treatment/side-effects",
+    "topic": "副作用",
+    "treatment_stages": ["确诊期", "治疗期", "随访期"],
+    "audience": "患者",
+    "jurisdiction": "国际",
+    "updated_at": "2026-08-01",
+    "reviewed_at": "2026-08-22",
+    "risk_level": "一般",
+    "text": "癌症及其治疗可能引起疲劳、恶心、疼痛、感染风险等副作用。副作用因人而异，应把新出现或加重的问题告诉医疗团队，以便获得评估和处理建议。"
+  },
+  {
+    "id": "nci-breast-survivorship",
+    "title": "Living with Breast Cancer & Survivorship",
+    "publisher": "National Cancer Institute",
+    "source_url": "https://www.cancer.gov/types/breast/breast-cancer-survivorship",
+    "topic": "随访与康复",
+    "treatment_stages": ["治疗期", "随访期"],
+    "audience": "患者",
+    "jurisdiction": "国际",
+    "updated_at": "2026-01-01",
+    "reviewed_at": "2026-08-22",
+    "risk_level": "一般",
+    "text": "乳腺癌治疗可能影响身体感受、情绪和日常生活。治疗团队可以提供包含既往治疗和后续照护安排的生存照护计划，患者应按计划参加随访。"
+  },
+  {
+    "id": "nci-follow-up-questions",
+    "title": "Questions to Ask Your Doctor When You Have Finished Treatment",
+    "publisher": "National Cancer Institute",
+    "source_url": "https://www.cancer.gov/about-cancer/coping/survivorship/questions",
+    "topic": "就医沟通",
+    "treatment_stages": ["治疗期", "随访期"],
+    "audience": "患者",
+    "jurisdiction": "国际",
+    "updated_at": "2022-01-01",
+    "reviewed_at": "2026-08-22",
+    "risk_level": "一般",
+    "text": "复诊前可以记录并询问后续检查安排、可能的长期副作用、哪些症状需要联系医生，以及由哪位医疗人员负责后续照护。"
+  }
+]

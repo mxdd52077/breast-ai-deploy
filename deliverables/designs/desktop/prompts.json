@@ -1,0 +1,32 @@
+[
+  {
+    "id": "plant",
+    "prompt": "A small refined watercolor illustration for a Chinese patient care app: one elegant coral-red and blush botanical plant in a cream ceramic pot, warm friendly modern editorial style, soft subtle paper grain, centered compact silhouette, 512px square, transparent background, no text, no frame, no shadow rectangle. Colors coral red #DF5B61 pale pink #F7C9C8 with a few muted green leaves. This is an isolated UI asset to place in a pale blush dashboard card.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-61bb1bce-950d-4f5b-ae80-5fbab1318e75.png",
+    "dest": "app/frontend/public/art/plant.png"
+  },
+  {
+    "id": "checklist",
+    "prompt": "Small refined watercolor illustration for a patient care app empty state: an ivory clipboard with three muted coral-red check marks, a little sprig with two coral pink leaves tucked alongside its bottom corner. Gentle cheerful adult editorial watercolor, paper grain, colors #DF5B61 and #F7C9C8 and warm ivory. Isolated transparent background, no text, no frame, no rectangle background. Compact square composition matching an elegant warm coral botanical UI style.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-03996ceb-a7a3-4a13-85fc-2a9d98e41a6a.png",
+    "dest": "app/frontend/public/art/checklist.png"
+  },
+  {
+    "id": "care-heart",
+    "prompt": "Small refined watercolor illustration for a patient care app: two minimal warm blush hands gently cupping a coral-red heart, one small botanical sprig. Elegant editorial watercolor on a genuinely transparent background. Soft paper grain, colors coral #DF5B61 pale pink #F7C9C8 warm ivory. Adult friendly, minimal, compact square composition. No text, no frame, no background rectangle.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-84d018f8-ee1f-4204-8c21-62c08b70f457.png",
+    "dest": "app/frontend/public/art/care-heart.png"
+  },
+  {
+    "id": "pc-home",
+    "prompt": "High fidelity desktop web app screenshot, landscape 1440x1000, APEX Chinese breast patient care companion. Warm coral RED #DF5B61 and pale blush, white cards, elegant youthful watercolor small plant illustrations. Left 220px sidebar APEX logo, 照护首页 selected, 我的档案, 照护计划, 知识问答, 机构决策, 个人设置. Main content greeting 早上好，小安, compact pink welcome banner 把今天，照顾好 with small potted plant. Below two cards 待核对资料 3项 and 下一次复诊 9月12日. Below 今日照护 white panel 暂无已确认安排 and 查看计划 button with a small watercolor clipboard. Bottom 最近资料 list 复诊记录.pdf 待核对 and 检查报告.pdf 已整理. Right column compact 照护日历 2026年9月 with day5 selected, next appointment 9月12日 09:00, then small 有疑问，慢慢说 help card with watercolor hands cupping heart and 去问一问 link. Top toolbar 我的空间 / 照护首页 and 添加资料 button avatar 安, 演示资料 badge. Professional functional app screenshot no device frame no perspective. Short readable Chinese, 16px body, 30px headings. Narrow borders, soft 18px corners, minimal shadows. White #FCFAF9 background, dark warm ink. All data fictional.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-2311de7b-bbe6-43d6-b52a-63febd8849bc.png",
+    "dest": "deliverables/designs/desktop/pc-home.png"
+  },
+  {
+    "id": "pc-review",
+    "prompt": "High fidelity 1440x1000 desktop UI screenshot for APEX Chinese patient care companion. Match warm coral red #DF5B61 pale blush white rounded cards, refined soft watercolor small botanical illustrations. Left 220px sidebar APEX ribbon logo, 照护首页, 我的档案 selected, 照护计划, 知识问答, 机构决策, 个人设置, bottom small potted plant. Main top toolbar 我的空间 / 我的档案 / 核对资料, 添加资料, avatar 安, 演示资料. Heading 核对资料 with subtitle 确认后，再加入照护计划. Under heading progress 1 / 3. Main two-column view: left 60% white source document panel header 原始资料 and 复诊记录.pdf · 第1页 with full simple fictional document text 复诊安排 请于2026年9月12日上午9点至乳腺外科复诊。highlight this sentence pale yellow. Keep rest of page blank with faint guide lines, no invented medical claims. Right40% extracted fact card heading 待核对事项, label 复诊时间, date 2026年9月12日 09:00 large, 待确认 amber pill. Below exact original quotation and small textarea 核对备注（可选）. Bottom large coral 确认并继续 button and outlined 有误，暂不加入. Bottom of workspace compact cards 已确认 0 待核对 3. Professional actionable PC app, no device frame, no perspective, readable short Chinese, dark warm ink, 16px body, minimal shadows, no large hero, only tiny coral plant accent, no real patient information.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-9bfc8c7e-9b8b-4f62-87df-fee57ff96170.png",
+    "dest": "deliverables/designs/desktop/pc-review.png"
+  }
+]

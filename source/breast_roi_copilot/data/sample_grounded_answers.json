@@ -1,0 +1,60 @@
+[
+  {
+    "question": "Does mammography screening shift breast cancers toward earlier stages?",
+    "answer": {
+      "answer": "One retrieved population study found increased localized-stage incidence after organized screening, but it did not find a corresponding decline in advanced-stage incidence. The evidence therefore supports a change in localized detection but only partially supports a beneficial stage-shift interpretation. [PMID: 26835975]",
+      "evidence_status": "Partially supported",
+      "supporting_claims": [
+        {
+          "claim": "Screening introduction was associated with increased localized-stage incidence without a change in advanced-stage incidence in the comparison reported by the study.",
+          "pmids": ["26835975"],
+          "evidence_excerpt": "Screening introduction was followed by increased localised incidence and no change in advanced-stage incidence relative to the comparison group."
+        }
+      ],
+      "evidence_limitations": [
+        "The cited evidence is a population study rather than a randomized controlled trial.",
+        "An increase in localized incidence alone does not prove that screening prevented advanced-stage disease.",
+        "The evidence does not directly validate a numeric stage-shift percentage for the ROI model."
+      ],
+      "retrieved_pmids": ["38878837", "32800099", "26835975"]
+    }
+  },
+  {
+    "question": "Does mammography screening reduce breast cancer mortality?",
+    "answer": {
+      "answer": "The retrieved systematic review of cohort studies reported lower breast cancer mortality among screening attendees than nonattendees. [PMID: 38878837] A randomized trial beginning screening at age 40 or 41 also reported an early relative mortality reduction that attenuated after ten years. [PMID: 32800099]",
+      "evidence_status": "Supported",
+      "supporting_claims": [
+        {
+          "claim": "A systematic review reported lower breast cancer mortality among screening attendees.",
+          "pmids": ["38878837"],
+          "evidence_excerpt": "The random-effects summary relative risk for breast cancer mortality in screening attendees versus nonattendees was 0.55 (95% CI 0.50-0.60) across 13 cohort studies."
+        },
+        {
+          "claim": "The UK Age trial reported an early mortality reduction that attenuated after ten years.",
+          "pmids": ["32800099"],
+          "evidence_excerpt": "The authors reported a relative reduction in breast cancer mortality during the first ten years, with attenuation thereafter while the absolute reduction remained constant."
+        }
+      ],
+      "evidence_limitations": [
+        "The cohort-study estimate is vulnerable to differences between screening attendees and nonattendees.",
+        "The randomized trial studied screening beginning at age 40 or 41 and may not generalize to every target population.",
+        "Relative mortality effects cannot be inserted directly as lives saved per 1,000 without additional baseline-risk and time-horizon assumptions."
+      ],
+      "retrieved_pmids": ["38878837", "32800099", "26835975"]
+    }
+  },
+  {
+    "question": "What numeric stage-shift value should be used in the ROI model?",
+    "answer": {
+      "answer": "Insufficient evidence to recommend a numeric stage-shift parameter from the retrieved abstracts.",
+      "evidence_status": "Insufficient evidence",
+      "supporting_claims": [],
+      "evidence_limitations": [
+        "The retrieved abstracts do not report a directly transferable regional-to-local or distant-to-regional shift percentage.",
+        "A numeric recommendation would require compatible stage definitions, population characteristics, and follow-up periods."
+      ],
+      "retrieved_pmids": ["38878837", "32800099", "26835975"]
+    }
+  }
+]

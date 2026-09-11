@@ -1,0 +1,80 @@
+[
+  {
+    "pmid": "38878837",
+    "title": "Effect of screening mammography on the risk of breast cancer deaths and of all-cause deaths: a systematic review with meta-analysis of cohort studies",
+    "study_design": "Systematic review and meta-analysis of cohort studies",
+    "population": "Women attending versus not attending mammography screening in 13 cohort studies",
+    "sample_size": null,
+    "intervention": "Attendance at mammography screening",
+    "comparator": "Nonattendance at mammography screening",
+    "outcome": "Breast cancer mortality",
+    "effect_measure": "Relative risk",
+    "effect_value": 0.55,
+    "confidence_interval_low": 0.5,
+    "confidence_interval_high": 0.6,
+    "unit": "Relative risk",
+    "time_horizon": null,
+    "evidence_excerpt": "The random-effects summary relative risk for breast cancer mortality in screening attendees versus nonattendees was 0.55 (95% CI 0.50-0.60) across 13 cohort studies.",
+    "candidate_roi_parameter": "lives_saved_per_1000",
+    "directly_usable": false,
+    "conversion_required": true,
+    "evidence_strength": "Moderate observational synthesis",
+    "limitations": [
+      "Screening attendees and nonattendees may differ in baseline risk and health behavior.",
+      "Relative risk cannot be converted to lives saved per 1,000 without baseline mortality and a time horizon."
+    ],
+    "review_status": "AI candidate"
+  },
+  {
+    "pmid": "32800099",
+    "title": "Effect of mammographic screening from age 40 years on breast cancer mortality (UK Age trial): final results of a randomised, controlled trial",
+    "study_design": "Randomized controlled trial",
+    "population": "Women beginning annual mammography at age 40 or 41",
+    "sample_size": null,
+    "intervention": "Annual mammography beginning at age 40 or 41",
+    "comparator": "Standard care without screening before the national program invitation",
+    "outcome": "Breast cancer mortality",
+    "effect_measure": null,
+    "effect_value": null,
+    "confidence_interval_low": null,
+    "confidence_interval_high": null,
+    "unit": null,
+    "time_horizon": "First ten years and later follow-up",
+    "evidence_excerpt": "The authors reported a relative reduction in breast cancer mortality during the first ten years, with attenuation thereafter while the absolute reduction remained constant.",
+    "candidate_roi_parameter": "lives_saved_per_1000",
+    "directly_usable": false,
+    "conversion_required": true,
+    "evidence_strength": "Randomized trial; numeric effect absent from demo abstract",
+    "limitations": [
+      "The fixed demo abstract does not contain a numeric effect estimate.",
+      "The population beginning screening at age 40 or 41 may not represent all women aged 40-74."
+    ],
+    "review_status": "AI candidate"
+  },
+  {
+    "pmid": "26835975",
+    "title": "Effect of organised mammography screening on stage-specific incidence in Norway: population study",
+    "study_design": "Population study",
+    "population": "Women eligible for organized screening compared with younger ineligible women",
+    "sample_size": null,
+    "intervention": "Introduction of organized mammography screening",
+    "comparator": "Concurrent changes among younger women ineligible for screening",
+    "outcome": "Stage-specific breast cancer incidence",
+    "effect_measure": null,
+    "effect_value": null,
+    "confidence_interval_low": null,
+    "confidence_interval_high": null,
+    "unit": null,
+    "time_horizon": null,
+    "evidence_excerpt": "Screening introduction was followed by increased localised incidence and no change in advanced-stage incidence relative to the comparison group.",
+    "candidate_roi_parameter": "regional_to_local_shift",
+    "directly_usable": false,
+    "conversion_required": false,
+    "evidence_strength": "Observational population evidence",
+    "limitations": [
+      "The abstract does not report a transferable stage-shift percentage.",
+      "Advanced-stage incidence did not decline in the reported comparison."
+    ],
+    "review_status": "AI candidate"
+  }
+]

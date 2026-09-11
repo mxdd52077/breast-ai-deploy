@@ -1,0 +1,21 @@
+parameter,value,unit,source_note
+population_size,100000,women,R Shiny default
+current_screening_rate,67,percent,Breast workbook baseline
+target_screening_rate,80,percent,R Shiny scenario default
+average_age,55,years,R Shiny default
+mammography_cost,195,USD per screen,R Shiny default
+screening_interval,2,years,Biennial workbook base case
+recall_rate,11.5,percent,Breast workbook value
+followup_cost,226,USD per completed recall,R Shiny default
+followup_completion_rate,80,percent,Breast workbook base case
+cancer_detection_per_1000,6.2,cases per 1000 exams,Breast workbook value
+lives_saved_per_1000,6.7,lives per 1000 women,Lower end of stated workbook evidence range
+localized_stage_percent,63,percent,Workbook / SEER value noted in R
+regional_stage_percent,28,percent,Workbook / SEER value noted in R
+distant_stage_percent,6,percent,Workbook / SEER value noted in R
+unknown_stage_percent,3,percent,Workbook / SEER value noted in R
+localized_stage_cost,140577.50,USD per case,Average Stage I HR-/HR+ cost in workbook
+regional_stage_cost,323283.25,USD per case,Average Stage II-III HR-/HR+ cost in workbook
+distant_stage_cost,1036269,USD per case,Average Stage IV HR-/HR+ cost in workbook
+regional_to_local_shift,25,percent,Workbook assumption
+distant_to_regional_shift,25,percent,Workbook assumption

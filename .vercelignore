@@ -1,0 +1,10 @@
+.venv/
+audit/
+deliverables/
+app/tests/
+app/private-data/
+app/.env
+**/__pycache__/
+**/*.pyc
+node_modules/
+app/frontend/node_modules/

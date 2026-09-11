@@ -1,0 +1,9 @@
+{
+  "service": "baidu-hosted-paddleocr-vl",
+  "success": true,
+  "pages": 1,
+  "date_present": true,
+  "time_present": true,
+  "elapsed_seconds": 7.03,
+  "data": "generated fictional PNG only"
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "check": "entry-institution",
+    "exceptions": [
+      "a bytes-like object is required, not 'str'"
+    ]
+  },
+  {
+    "check": "entry-patient",
+    "exceptions": [
+      "a bytes-like object is required, not 'str'"
+    ]
+  },
+  {
+    "check": "completed-past-task-overdue",
+    "exceptions": [],
+    "reproduced": true,
+    "badges": [
+      ":red-badge[:material/warning: 已逾期]",
+      ":red-badge[:material/warning: 已逾期]"
+    ]
+  },
+  {
+    "check": "review-resave-clears-task-status",
+    "exceptions": [],
+    "reproduced": true,
+    "harness": "Only streamlit.page_link stubbed; review and session state run unchanged."
+  }
+]

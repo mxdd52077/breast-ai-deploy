@@ -1,0 +1,2 @@
+parameter_name,original_value,recommended_value,final_value,unit,action,pmids,decision_note,updated_at
+regional_to_local_shift,25.0,,25.0,%,Keep original,"[""26835975""]",Kept the 25% model assumption because the approved evidence is relevant but does not provide a transferable numeric stage-shift estimate.,2026-08-05T17:11:25.527861+00:00

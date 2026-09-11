@@ -1,0 +1,50 @@
+[
+  {
+    "id": "A-home",
+    "style": "活力珊瑚",
+    "palette": "cream #FFF8F0, coral #F36F56, apricot #FFD8B8, dark brown ink #382C2A",
+    "page": "home",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 活力珊瑚, palette cream #FFF8F0, coral #F36F56, apricot #FFD8B8, dark brown ink #382C2A. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Home page: top APEX and avatar; greeting “早上好，小安”; small “演示资料”; a compact playful hero with headline “把今天，照顾好” and tiny plant illustration. A prominent white card heading “今日照护” with “今天暂无待办” and supportive small text. Next card “下一次复诊” date “9月12日 周六” detail “乳腺外科 · 09:00” and button “查看安排”. Next actionable card “3项资料待核对” and “核对后同步照护计划” button “去核对”. Small upload entry “添加新资料”. Bottom navigation icons labels “首页”“档案”“照护”“问答”, 首页 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-1421d7f8-378e-459f-8ce8-5608fa1c2422.png"
+  },
+  {
+    "id": "A-review",
+    "style": "活力珊瑚",
+    "palette": "cream #FFF8F0, coral #F36F56, apricot #FFD8B8, dark brown ink #382C2A",
+    "page": "review",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 活力珊瑚, palette cream #FFF8F0, coral #F36F56, apricot #FFD8B8, dark brown ink #382C2A. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Document review page: top back arrow, “核对资料”, progress “1 / 3”, small “演示资料”. Heading “确认下一次复诊”. Fact card label “复诊时间”, large “2026年9月12日 09:00”, status pill “待确认”. Source card label “原文依据”, file “复诊记录.pdf · 第1页”, quotation “请于2026年9月12日上午9点至乳腺外科复诊。” with date highlighted. Helpful line “请与原始资料核对，确认后加入照护计划”. Secondary link “查看原文件”. Large primary bottom action “确认并继续”, secondary “有误，暂不加入”. Bottom navigation “首页”“档案”“照护”“问答”, 档案 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-c5f50d0d-864d-4c4c-afa6-159da9bf2ebc.png"
+  },
+  {
+    "id": "B-home",
+    "style": "清新薄荷",
+    "palette": "off white #F6FBF8, mint #36AA90, sky blue #A8DDF5, small yellow #FFE493, dark green ink #173D36",
+    "page": "home",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 清新薄荷, palette off white #F6FBF8, mint #36AA90, sky blue #A8DDF5, small yellow #FFE493, dark green ink #173D36. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Home page: top APEX and avatar; greeting “早上好，小安”; small “演示资料”; a compact playful hero with headline “把今天，照顾好” and tiny plant illustration. A prominent white card heading “今日照护” with “今天暂无待办” and supportive small text. Next card “下一次复诊” date “9月12日 周六” detail “乳腺外科 · 09:00” and button “查看安排”. Next actionable card “3项资料待核对” and “核对后同步照护计划” button “去核对”. Small upload entry “添加新资料”. Bottom navigation icons labels “首页”“档案”“照护”“问答”, 首页 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-1aee0570-9e49-45e3-9c62-dedb96c000af.png"
+  },
+  {
+    "id": "B-review",
+    "style": "清新薄荷",
+    "palette": "off white #F6FBF8, mint #36AA90, sky blue #A8DDF5, small yellow #FFE493, dark green ink #173D36",
+    "page": "review",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 清新薄荷, palette off white #F6FBF8, mint #36AA90, sky blue #A8DDF5, small yellow #FFE493, dark green ink #173D36. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Document review page: top back arrow, “核对资料”, progress “1 / 3”, small “演示资料”. Heading “确认下一次复诊”. Fact card label “复诊时间”, large “2026年9月12日 09:00”, status pill “待确认”. Source card label “原文依据”, file “复诊记录.pdf · 第1页”, quotation “请于2026年9月12日上午9点至乳腺外科复诊。” with date highlighted. Helpful line “请与原始资料核对，确认后加入照护计划”. Secondary link “查看原文件”. Large primary bottom action “确认并继续”, secondary “有误，暂不加入”. Bottom navigation “首页”“档案”“照护”“问答”, 档案 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-d6e1e2fb-e81f-44c6-8d60-a437bb856734.png"
+  },
+  {
+    "id": "C-home",
+    "style": "灵动丁香",
+    "palette": "off white #FAF8FF, lilac #AD92EB, blush #F7DDEB, electric blue #5262E8, dark purple ink #302344",
+    "page": "home",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 灵动丁香, palette off white #FAF8FF, lilac #AD92EB, blush #F7DDEB, electric blue #5262E8, dark purple ink #302344. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Home page: top APEX and avatar; greeting “早上好，小安”; small “演示资料”; a compact playful hero with headline “把今天，照顾好” and tiny plant illustration. A prominent white card heading “今日照护” with “今天暂无待办” and supportive small text. Next card “下一次复诊” date “9月12日 周六” detail “乳腺外科 · 09:00” and button “查看安排”. Next actionable card “3项资料待核对” and “核对后同步照护计划” button “去核对”. Small upload entry “添加新资料”. Bottom navigation icons labels “首页”“档案”“照护”“问答”, 首页 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-07c0dadf-2b4a-4704-95c6-97921444b71e.png"
+  },
+  {
+    "id": "C-review",
+    "style": "灵动丁香",
+    "palette": "off white #FAF8FF, lilac #AD92EB, blush #F7DDEB, electric blue #5262E8, dark purple ink #302344",
+    "page": "review",
+    "prompt": "Use case: ui-mockup. Generate ONE polished portrait mobile web UI design screenshot for APEX breast patient care companion in Simplified Chinese. Style 灵动丁香, palette off white #FAF8FF, lilac #AD92EB, blush #F7DDEB, electric blue #5262E8, dark purple ink #302344. Young lively adult friendly, excellent readability, large 17px equivalent body type, clean 8pt spacing, friendly small abstract botanical illustration, sophisticated consumer health product. Full flat screen, approximately 390x844 layout, no perspective, no phone hardware, no presentation board. All patient information fictional. Document review page: top back arrow, “核对资料”, progress “1 / 3”, small “演示资料”. Heading “确认下一次复诊”. Fact card label “复诊时间”, large “2026年9月12日 09:00”, status pill “待确认”. Source card label “原文依据”, file “复诊记录.pdf · 第1页”, quotation “请于2026年9月12日上午9点至乳腺外科复诊。” with date highlighted. Helpful line “请与原始资料核对，确认后加入照护计划”. Secondary link “查看原文件”. Large primary bottom action “确认并继续”, secondary “有误，暂不加入”. Bottom navigation “首页”“档案”“照护”“问答”, 档案 active. Consistent accessible dark text and ample touch targets. Keep all text short exact Chinese, clear hierarchy, bottom actions entirely visible. No clinical predictions, no invented charts, no medication advice, no large decorative art occupying work area.",
+    "source": "C:\\Users\\wu\\.codex\\generated_images\\01a0700e-0bfb-7df0-82ac-ed44c7692c31\\exec-37565941-0330-4526-a807-4028d467db34.png"
+  }
+]
