@@ -1,6 +1,7 @@
 """Baidu-hosted PaddleOCR-VL document parser. Credentials never enter logs or responses."""
 import base64
 import hashlib
+import logging
 import os
 import time
 from io import BytesIO
@@ -10,6 +11,10 @@ from urllib.parse import urlsplit
 import httpx
 from PIL import Image
 from pypdf import PdfReader
+
+# Baidu requires the access token in the query string. Keep httpx from writing it
+# to application logs.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 _lock=Lock()
 _cached={"fingerprint":"","token":"","expires":0.0}
@@ -91,7 +96,7 @@ def recognize(path):
                 status=result.get('status')
                 if status=='failed':raise BaiduError('PaddleOCR-VL解析失败，请检查接口额度或文件格式后重试。')
                 if status=='success':break
-                if status not in {'pending','processing'}:raise BaiduError('PaddleOCR-VL返回未知任务状态。')
+                if status not in {'pending','processing','running'}:raise BaiduError('PaddleOCR-VL返回未知任务状态。')
             else:raise BaiduError('PaddleOCR-VL处理超时，文件已保留，请稍后重试。')
             url=result.get('parse_result_url','');parsed=urlsplit(url)
             if parsed.scheme!='https' or parsed.username or parsed.password or parsed.port not in {None,443} or not (parsed.hostname or '').endswith('.bcebos.com'):

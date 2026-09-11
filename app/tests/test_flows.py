@@ -99,6 +99,14 @@ def test_missing_ocr_retry_recovery(demo,monkeypatch):
     w=workspace(demo);assert next(d for d in w['documents'] if d['id']==key)['status']=='ready'
     assert all(f['status']=='pending' for f in w['facts'] if f['document_id']==key)
 
+def test_vercel_can_resume_queued_document(demo,monkeypatch):
+    created=upload(demo,'复诊安排：日期尚待明确。','等待整理.txt')
+    called=[]
+    monkeypatch.setenv('VERCEL','1')
+    monkeypatch.setattr('app.backend.main.process_one',lambda key: called.append(key))
+    assert demo.post('/api/documents/'+created['id']+'/retry').status_code==200
+    assert called==[created['id']]
+
 def test_docx_table_and_unknown_dates(tmp_path):
     d=WordDocument();d.add_paragraph('虚构测试资料');t=d.add_table(rows=1,cols=2);t.cell(0,0).text='复诊';t.cell(0,1).text='2030年9月10日复查'
     p=tmp_path/'table.docx';d.save(p)

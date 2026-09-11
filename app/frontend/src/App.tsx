@@ -198,7 +198,12 @@ export default function App() {
       await refresh();
       if (success) notice(success);
     } catch (e) {
-      setError((e as Error).message);
+      if (e instanceof TypeError) {
+        await refresh().catch(() => undefined);
+        notice("连接等待已结束，已刷新最新处理状态。");
+      } else {
+        setError((e as Error).message);
+      }
     } finally {
       setBusy(false);
     }
@@ -349,7 +354,7 @@ export default function App() {
         <Badge
           status={d.status === "ready" && d.pending ? "pending" : d.status}
         />
-        {d.status === "failed" ? (
+        {["failed", "queued"].includes(d.status) ? (
           <button
             className="text-btn"
             disabled={busy}
@@ -360,7 +365,7 @@ export default function App() {
               )
             }
           >
-            重试
+            {d.status === "queued" ? "继续整理" : "重试"}
           </button>
         ) : (
           <button
@@ -1161,9 +1166,15 @@ export default function App() {
       {uploadOpen && (
         <UploadModal
           onClose={() => setUploadOpen(false)}
-          onDone={async (success) => {
+          onDone={async (success, documentId, interrupted) => {
             await refresh();
-            if (success) notice("资料已保存，正在整理。");
+            if (success && documentId) {
+              openReview(documentId);
+              notice("资料整理完成，请核对结果。");
+            } else if (interrupted) {
+              navigate("documents");
+              notice("连接等待已结束，资料会继续整理，请查看列表状态。");
+            }
           }}
         />
       )}
@@ -1389,7 +1400,11 @@ function UploadModal({
   onDone,
 }: {
   onClose: () => void;
-  onDone: (success: boolean) => Promise<void>;
+  onDone: (
+    success: boolean,
+    documentId?: string,
+    interrupted?: boolean,
+  ) => Promise<void>;
 }) {
   const [files, setFiles] = useState<File[]>([]),
     [busy, setBusy] = useState(false),
@@ -1415,20 +1430,31 @@ function UploadModal({
     setError("");
     setProgress(0);
     let completed = 0;
+    let lastDocumentId: string | undefined;
     try {
       for (const f of files) {
         const form = new FormData();
         form.append("file", f);
-        await api("/documents", { method: "POST", body: form });
+        const uploaded = await api<{ id: string }>("/documents", {
+          method: "POST",
+          body: form,
+        });
+        lastDocumentId = uploaded.id;
         completed++;
         setProgress(completed);
       }
-      await onDone(true);
+      await onDone(true, lastDocumentId);
       onClose();
     } catch (e) {
-      setError((e as Error).message);
+      const interrupted = e instanceof TypeError;
+      setError(
+        interrupted
+          ? "连接等待已结束，资料可能仍在后台整理。"
+          : (e as Error).message,
+      );
       setFiles((f) => f.slice(completed));
-      await onDone(false);
+      await onDone(false, undefined, interrupted);
+      if (interrupted) onClose();
     } finally {
       setBusy(false);
     }
@@ -1503,7 +1529,7 @@ function UploadModal({
           {busy ? (
             <>
               <LoaderCircle className="spin" size={18} />
-              保存中 {progress}/{files.length}
+              正在识别与整理 {progress}/{files.length}
             </>
           ) : (
             <>

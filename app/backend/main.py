@@ -193,9 +193,11 @@ def source_file(key:str,inline:bool=False,user=Depends(current_user)):
 def retry(key:str,user=Depends(current_user)):
     with Session() as db:
         doc=own(db,Document,key,user)
-        if doc.status!="failed": raise HTTPException(409,"只有失败的资料需要重试。")
+        if doc.status not in {"failed","queued"}: raise HTTPException(409,"只有等待整理或失败的资料需要重试。")
         job=db.scalar(select(Job).where(Job.document_id==key)); job.state="queued"; job.lease=0
-        doc.status="queued"; doc.error=""; db.commit(); return {"ok":True}
+        doc.status="queued"; doc.error=""; db.commit()
+    if os.getenv("VERCEL"): process_one(key)
+    return {"ok":True}
 
 @app.delete("/api/documents/{key}")
 def remove_document(key:str,user=Depends(current_user)):
