@@ -1044,6 +1044,9 @@ textarea {
   background: transparent;
   font-size: 14px;
 }
+.chat-composer textarea:placeholder-shown {
+  overflow-y: hidden;
+}
 .agent-action-card {
   margin-top: 16px;
   padding: 17px;
