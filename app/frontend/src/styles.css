@@ -1034,10 +1034,13 @@ textarea {
   display: grid;
 }
 .chat-composer textarea {
+  display: block;
+  width: 100%;
   border: 0;
   flex: 1;
   min-height: 54px;
   height: 60px;
+  resize: none;
   background: transparent;
   font-size: 14px;
 }
