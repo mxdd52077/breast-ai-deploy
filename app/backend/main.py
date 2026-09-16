@@ -24,7 +24,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .contracts import Answer, BatchReview, CalendarProposal, Credentials, Question, ReportDateUpdate, Review, ROIRun, TaskUpdate
 from .db import APP_ROOT, DATA, Audit, Document, Fact, Job, LoginSession, Message, Session, Simulation, Task, User, audit, init_db, uid
-from .providers import MAX_BYTES, ServiceError, chat_json, infer_report_date, ocr_configured
+from .providers import MAX_BYTES, ServiceError, chat_json, clean, infer_relative_schedules, infer_report_date, ocr_configured
 from .conversation import run_conversation
 from .retrieval import EvidenceChunk, citation_payload, retrieve_evidence, sync_fact_chunk
 from .security import current_user, digest, hasher, institution_user, issue_session, rate_limit, verify_password
@@ -215,6 +215,26 @@ def update_report_date(key:str,body:ReportDateUpdate,user=Depends(current_user))
         audit(db,user.id,"document_report_date_updated",key,{"has_date":bool(body.report_date)})
         db.commit()
         return {"ok":True,"report_date":doc.report_date}
+
+@app.post("/api/documents/{key}/recognize-schedules")
+def recognize_document_schedules(key:str,user=Depends(current_user)):
+    with Session() as db:
+        doc=own(db,Document,key,user)
+        if doc.status!="ready": raise HTTPException(409,"资料尚未整理完成，请稍后重试。")
+        pages=doc.pages or []
+        source={page.get("page"):page for page in pages}
+        existing={(fact.page,clean(fact.quote)) for fact in db.scalars(select(Fact).where(Fact.document_id==key)).all()}
+        added=[]
+        for item in infer_relative_schedules(pages):
+            page=source.get(item["page"])
+            identity=(item["page"],clean(item["quote"]))
+            if not page or identity in existing or clean(item["quote"]) not in clean(page.get("text","")):continue
+            fact=Fact(user_id=user.id,document_id=key,**item,status="pending")
+            db.add(fact);db.flush();sync_fact_chunk(db,fact,doc)
+            existing.add(identity);added.append(fact.id)
+        audit(db,user.id,"document_schedules_recognized",key,{"added":len(added)})
+        db.commit()
+        return {"added":len(added),"fact_ids":added}
 
 @app.delete("/api/documents/{key}")
 def remove_document(key:str,user=Depends(current_user)):

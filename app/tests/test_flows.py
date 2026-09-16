@@ -276,6 +276,24 @@ def test_verified_relative_schedules_survive_unavailable_llm(monkeypatch):
     assert sorted(item['scheduled_date'] for item in facts)==['2024-12-31','2025-01-10']
     assert method=='时间规则识别 · 待人工核对'
 
+def test_existing_document_can_recognize_relative_schedules_without_reupload(demo):
+    text=('于2024年12月26日在全麻下行乳房重建术。出院时间：2024年12月27日。'
+          '乳房重建患者术后第五天到医院查看切口，出院2周后到门诊领取病理报告。')
+    created=upload(demo,text,'旧资料.txt')
+    assert process_one(created['id'])
+    with Session() as db:
+        facts=db.query(Fact).filter(Fact.document_id==created['id']).all()
+        for fact in facts:db.delete(fact)
+        db.commit()
+    response=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert response.status_code==200,response.text
+    assert response.json()['added']==2
+    facts=[f for f in workspace(demo)['facts'] if f['document_id']==created['id']]
+    assert sorted(f['scheduled_date'] for f in facts)==['2024-12-31','2025-01-10']
+    assert all(f['status']=='pending' and f['scheduled_time'] is None for f in facts)
+    again=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert again.status_code==200 and again.json()['added']==0
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])

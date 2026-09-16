@@ -943,7 +943,31 @@ export default function App() {
                   </div>
                 </section>
                 <section className="panel fact-panel">
-                  <h2>待核对事项</h2>
+                  <div className="section-head">
+                    <h2>待核对事项</h2>
+                    {reviewDocument?.status === "ready" && (
+                      <button
+                        className="outline small"
+                        disabled={busy}
+                        onClick={() =>
+                          void action(async () => {
+                            const result = await api<{ added: number; fact_ids: string[] }>(
+                              "/documents/" + reviewDoc + "/recognize-schedules",
+                              { method: "POST" },
+                            );
+                            if (result.fact_ids[0]) setReviewFact(result.fact_ids[0]);
+                            notice(
+                              result.added
+                                ? `补充识别了 ${result.added} 条时间安排，请逐条核对日期与时间。`
+                                : "没有找到新的可核对时间安排；原有事项未被修改。",
+                            );
+                          })
+                        }
+                      >
+                        补充识别时间安排
+                      </button>
+                    )}
+                  </div>
                   <div className="report-date-editor">
                     <div className="report-date-heading">
                       <span>当前报告日期</span>
