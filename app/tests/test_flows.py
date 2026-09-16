@@ -267,6 +267,15 @@ def test_postoperative_and_post_discharge_schedules_use_named_anchors(monkeypatc
     assert all('人工核对' in item['schedule_basis'] for item in schedules)
     assert not any(item['quote']==quote for item in facts)
 
+def test_verified_relative_schedules_survive_unavailable_llm(monkeypatch):
+    text=('于2024年12月26日行乳房重建术。出院时间：2024年12月27日。'
+          '乳房重建患者术后第五天到医院查看切口，出院2周后到门诊领取病理报告。')
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    monkeypatch.setattr('app.backend.providers.chat_json',lambda *args:(_ for _ in ()).throw(ServiceError('智能服务未返回可验证结果，资料已保留，可重试。')))
+    facts,method=extract_facts(pages)
+    assert sorted(item['scheduled_date'] for item in facts)==['2024-12-31','2025-01-10']
+    assert method=='时间规则识别 · 待人工核对'
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
