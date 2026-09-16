@@ -69,3 +69,32 @@ def test_graph_urgent_route_does_not_call_llm():
     def forbidden(*args,**kwargs):raise AssertionError('must not call external service')
     answer,sources=run_conversation('呼吸困难',[],[],forbidden,forbidden)
     assert answer.status=='safety_escalation' and not sources
+
+def test_report_request_uses_fixed_sections_and_more_verified_sources(monkeypatch):
+    from app.backend.main import knowledge
+    monkeypatch.setenv('APEX_LLM_API_KEY','fake-only')
+    captured={}
+    limits=[]
+    def retrieve(q,library,limit):
+        limits.append(limit)
+        return library[:1]
+    def generate(system,content,schema):
+        captured.update({'system':system,'content':json.loads(content),'schema':schema.__name__})
+        if schema.__name__=='CareReport':
+            return schema.model_validate({
+                'summary':['已确认资料1份'],
+                'key_findings':['资料记录一项关键发现'],
+                'treatment_medication':[],
+                'schedule':[],
+                'pending_items':['下一步时间仍需确认'],
+                'visit_preparation':[],
+                'safety_note':'涉及治疗与用药请咨询治疗团队。',
+                'citations':[knowledge()[0].id],
+            })
+        return Answer(answer='普通回答',status='supported',citations=[knowledge()[0].id])
+    answer,_=run_conversation('请根据已确认资料生成一份规范照护报告',[],knowledge(),retrieve,generate)
+    assert limits==[8]
+    assert captured['schema']=='CareReport'
+    assert all(title in captured['system'] for title in ['资料概况','关键发现','治疗与用药','时间安排','待确认事项','就诊准备'])
+    assert all(title in answer.answer for title in ['一、资料概况','二、关键发现','三、治疗与用药','四、时间安排','五、待确认事项','六、就诊准备','重要说明'])
+    assert '未在已确认资料中找到' in answer.answer

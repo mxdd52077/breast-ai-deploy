@@ -144,6 +144,7 @@ def retrieve_personal(query: str, user_id: str, limit: int = 3) -> list[Evidence
                 title=document.name,
                 publisher="你的资料",
                 text=chunk.content,
+                reviewed_at=document.report_date or "",
                 source_type="personal",
                 document_id=document.id,
                 page=chunk.page,
@@ -155,7 +156,7 @@ def retrieve_personal(query: str, user_id: str, limit: int = 3) -> list[Evidence
 
 
 def retrieve_evidence(query: str, library: list[EvidenceChunk], user_id: str, limit: int = 5) -> list[EvidenceChunk]:
-    personal = retrieve_personal(query, user_id, limit=3)
+    personal = retrieve_personal(query, user_id, limit=min(6,limit))
     public_ranked = sorted(
         ((0.55 * max(0.0, _cosine(embedding(query), embedding(f"{item.title} {item.text}"))) + 0.45 * _lexical(query, f"{item.title} {item.text}"), item) for item in library),
         key=lambda item: item[0],

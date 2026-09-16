@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Annotated,Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class Strict(BaseModel):
@@ -99,6 +99,18 @@ class Answer(Strict):
     answer:str=Field(min_length=1,max_length=5000)
     status:Literal["supported","insufficient_evidence","safety_escalation"]
     citations:list[str]=Field(default_factory=list)
+
+ReportItem=Annotated[str,Field(min_length=1,max_length=400)]
+
+class CareReport(Strict):
+    summary:list[ReportItem]=Field(default_factory=list,max_length=12)
+    key_findings:list[ReportItem]=Field(default_factory=list,max_length=20)
+    treatment_medication:list[ReportItem]=Field(default_factory=list,max_length=20)
+    schedule:list[ReportItem]=Field(default_factory=list,max_length=20)
+    pending_items:list[ReportItem]=Field(default_factory=list,max_length=20)
+    visit_preparation:list[ReportItem]=Field(default_factory=list,max_length=20)
+    safety_note:str=Field(default="涉及治疗与用药，请以治疗团队意见为准。",max_length=500)
+    citations:list[str]=Field(default_factory=list,max_length=20)
 
 class ROIRun(Strict):
     name:str=Field(default="筛查扩容方案",max_length=100)
