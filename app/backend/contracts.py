@@ -13,6 +13,7 @@ class Review(Strict):
     status:Literal["pending","confirmed","rejected"]
     version:int=Field(ge=1)
     note:str=Field(default="",max_length=500)
+    value:str | None=Field(default=None,min_length=1,max_length=1200)
     scheduled_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
     scheduled_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
     scheduled_end_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")

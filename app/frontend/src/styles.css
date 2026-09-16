@@ -828,6 +828,41 @@ textarea {
   font-size: 14px;
   overflow-wrap: anywhere;
 }
+.recognized-editor {
+  margin: 18px 0 12px;
+  padding: 16px;
+  border: 1px solid #f0ded9;
+  border-radius: 10px;
+  background: #fff7f4;
+}
+.recognized-heading,
+.recognized-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.recognized-heading {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.recognized-heading small,
+.recognized-actions small {
+  color: var(--muted);
+  font-weight: 400;
+}
+.recognized-editor textarea {
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.8;
+  background: #fff;
+}
+.recognized-actions {
+  margin-top: 10px;
+}
 .source-hint {
   display: flex;
   align-items: center;

@@ -96,6 +96,7 @@ export default function App() {
     [taskFilter, setTaskFilter] = useState("upcoming");
   const [source, setSource] = useState<Source | null>(null),
     [note, setNote] = useState(""),
+    [factValue, setFactValue] = useState(""),
     [reportDate, setReportDate] = useState(""),
     [scheduleDate, setScheduleDate] = useState(""),
     [scheduleTime, setScheduleTime] = useState(""),
@@ -252,6 +253,7 @@ export default function App() {
     setReportDate(reviewDocument?.report_date || "");
   }, [reviewDocument?.id, reviewDocument?.report_date]);
   useEffect(() => {
+    setFactValue(currentFact?.value || "");
     setScheduleDate(currentFact?.scheduled_date || "");
     setScheduleTime(currentFact?.scheduled_time || "");
     setScheduleEndDate(currentFact?.scheduled_end_date || "");
@@ -267,6 +269,7 @@ export default function App() {
             status,
             version: currentFact.version,
             note,
+            value: factValue.trim(),
             scheduled_date: scheduleDate || null,
             scheduled_time: scheduleTime || null,
             scheduled_end_date: scheduleEndDate || null,
@@ -279,6 +282,22 @@ export default function App() {
       status === "confirmed"
         ? "核对结果已保存，照护计划已同步。"
         : "核对结果已保存。",
+    );
+  }
+  async function saveFactText() {
+    if (!currentFact || !factValue.trim()) return;
+    await action(
+      () =>
+        api("/facts/" + currentFact.id, {
+          method: "PATCH",
+          body: JSON.stringify({
+            status: currentFact.status,
+            version: currentFact.version,
+            note: currentFact.note,
+            value: factValue.trim(),
+          }),
+        }),
+      "识别内容已保存。",
     );
   }
   async function saveReportDate() {
@@ -331,6 +350,7 @@ export default function App() {
     setConfirmDelete(null);
     setUploadOpen(false);
     setNote("");
+    setFactValue("");
     setReportDate("");
     setQuery("");
     setService(null);
@@ -996,7 +1016,32 @@ export default function App() {
                           )}
                         </h3>
                       )}
-                      <blockquote>{currentFact.quote}</blockquote>
+                      <div className="recognized-editor">
+                        <div className="recognized-heading">
+                          <span>识别内容</span>
+                          <small>可对照左侧原件直接修改</small>
+                        </div>
+                        <textarea
+                          aria-label="识别内容"
+                          maxLength={1200}
+                          value={factValue}
+                          onChange={(e) => setFactValue(e.target.value)}
+                        />
+                        <div className="recognized-actions">
+                          <small>原始 OCR 摘录会保留，便于后续追溯。</small>
+                          <button
+                            className="outline small"
+                            disabled={
+                              busy ||
+                              !factValue.trim() ||
+                              factValue.trim() === currentFact.value
+                            }
+                            onClick={() => void saveFactText()}
+                          >
+                            保存文字
+                          </button>
+                        </div>
+                      </div>
                       <p className="source-hint">
                         <ShieldCheck size={16} />
                         {currentFact.location} · 摘录自原文
@@ -1070,7 +1115,7 @@ export default function App() {
                       <div className="review-actions">
                         <button
                           className="primary"
-                          disabled={busy}
+                          disabled={busy || !factValue.trim()}
                           onClick={() => void review("confirmed")}
                         >
                           <CheckCircle2 size={19} />
@@ -1078,7 +1123,7 @@ export default function App() {
                         </button>
                         <button
                           className="outline"
-                          disabled={busy}
+                          disabled={busy || !factValue.trim()}
                           onClick={() => void review("rejected")}
                         >
                           有误，暂不加入

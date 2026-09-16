@@ -10,7 +10,7 @@ from docx import Document as WordDocument
 from PIL import Image
 
 from app.backend.main import app
-from app.backend.db import Session,Document,Fact,Task,Job,DATA
+from app.backend.db import Session,Document,DocumentChunk,Fact,Task,Job,DATA
 from app.backend.worker import process_one
 from app.backend import providers
 from app.backend.providers import parse_pages,extract_facts,absolute_date,infer_report_date,ServiceError,ocr_document
@@ -263,6 +263,21 @@ def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     task=next(t for t in workspace(demo)['tasks'] if t['fact_id']==fact['id'])
     assert (updated['scheduled_time'],updated['scheduled_end_time'])==('14:30','16:30')
     assert (task['due_date'],task['due_time'],task['due_end_date'],task['due_end_time'])==('2030-09-10','14:30','2030-09-10','16:30')
+
+def test_review_text_can_be_corrected_without_losing_original_quote(demo):
+    fact=next(f for f in workspace(demo)['facts'] if f['scheduled_date'])
+    original_quote=fact['quote']
+    corrected='人工校正后的乳腺外科复诊安排'
+    response=demo.patch('/api/facts/'+fact['id'],json={'status':'confirmed','version':fact['version'],'note':'','value':corrected})
+    assert response.status_code==200,response.text
+    updated=next(f for f in workspace(demo)['facts'] if f['id']==fact['id'])
+    task=next(t for t in workspace(demo)['tasks'] if t['fact_id']==fact['id'])
+    assert updated['value']==corrected
+    assert updated['quote']==original_quote
+    assert task['title']==corrected
+    with Session() as db:
+        assert db.query(DocumentChunk).filter_by(fact_id=fact['id']).one().content==corrected
+    assert demo.patch('/api/facts/'+fact['id'],json={'status':'confirmed','version':updated['version'],'note':'','value':''}).status_code==422
 
 def test_agent_natural_language_calendar_draft_requires_confirmation(demo,monkeypatch):
     class Proposal:

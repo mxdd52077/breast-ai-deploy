@@ -232,12 +232,14 @@ def review(key:str,body:Review,user=Depends(current_user)):
         fact=own(db,Fact,key,user)
         if fact.conflict and body.status=="confirmed" and not body.note.strip(): raise HTTPException(400,"此安排与已有资料可能不同，请填写核对说明后确认。")
         values={"status":body.status,"note":body.note,"version":Fact.version+1}
+        if body.value is not None: values["value"]=body.value.strip()
         schedule_fields=["scheduled_date","scheduled_time","scheduled_end_date","scheduled_end_time"]
         for field in schedule_fields:
             if field in body.model_fields_set: values[field]=getattr(body,field)
         changed=db.execute(update(Fact).where(Fact.id==key,Fact.user_id==user.id,Fact.version==body.version).values(**values))
         if changed.rowcount!=1: raise HTTPException(409,"这条资料已更新，请刷新后再核对。")
         fact.status=body.status; fact.note=body.note
+        if body.value is not None: fact.value=body.value.strip()
         for field in schedule_fields:
             if field in body.model_fields_set: setattr(fact,field,getattr(body,field))
         document=db.get(Document,fact.document_id)
@@ -246,7 +248,7 @@ def review(key:str,body:Review,user=Depends(current_user)):
         if body.status=="confirmed" and fact.scheduled_date:
             if task:
                 if not task.active: task.version+=1
-                task.active=True;task.due_date=fact.scheduled_date;task.due_time=fact.scheduled_time;task.due_end_date=fact.scheduled_end_date;task.due_end_time=fact.scheduled_end_time
+                task.active=True;task.title=fact.value;task.due_date=fact.scheduled_date;task.due_time=fact.scheduled_time;task.due_end_date=fact.scheduled_end_date;task.due_end_time=fact.scheduled_end_time
             else: db.add(Task(user_id=user.id,fact_id=fact.id,title=fact.value,due_date=fact.scheduled_date,due_time=fact.scheduled_time,due_end_date=fact.scheduled_end_date,due_end_time=fact.scheduled_end_time,category=fact.category))
         elif task:
             if task.active: task.version+=1

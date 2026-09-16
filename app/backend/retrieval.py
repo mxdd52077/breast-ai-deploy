@@ -68,7 +68,7 @@ def _lexical(query: str, text: str) -> float:
 
 def sync_fact_chunk(db, fact, document) -> None:
     chunk = db.scalar(select(DocumentChunk).where(DocumentChunk.fact_id == fact.id))
-    content = fact.quote.strip()
+    content = fact.value.strip()
     vector = embedding(f"{document.name} {fact.category} {content}") if content else None
     if chunk is None:
         chunk = DocumentChunk(
@@ -81,6 +81,10 @@ def sync_fact_chunk(db, fact, document) -> None:
             content_hash=hashlib.sha256(content.encode("utf-8")).hexdigest(),
         )
         db.add(chunk)
+    chunk.page = fact.page
+    chunk.location = fact.location
+    chunk.content = content
+    chunk.content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
     chunk.review_status = fact.status
     chunk.embedding_model = EMBEDDING_MODEL
     chunk.embedding = vector
