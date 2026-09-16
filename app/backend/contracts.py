@@ -102,11 +102,17 @@ class Answer(Strict):
 
 ReportItem=Annotated[str,Field(min_length=1,max_length=400)]
 
+class ReportScheduleItem(Strict):
+    title:str=Field(min_length=1,max_length=200)
+    scheduled_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+    scheduled_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+    source_id:str=Field(min_length=1,max_length=200)
+
 class CareReport(Strict):
     summary:list[ReportItem]=Field(default_factory=list,max_length=12)
     key_findings:list[ReportItem]=Field(default_factory=list,max_length=20)
     treatment_medication:list[ReportItem]=Field(default_factory=list,max_length=20)
-    schedule:list[ReportItem]=Field(default_factory=list,max_length=20)
+    schedule:list[ReportScheduleItem]=Field(default_factory=list,max_length=20)
     pending_items:list[ReportItem]=Field(default_factory=list,max_length=20)
     visit_preparation:list[ReportItem]=Field(default_factory=list,max_length=20)
     safety_note:str=Field(default="涉及治疗与用药，请以治疗团队意见为准。",max_length=500)
