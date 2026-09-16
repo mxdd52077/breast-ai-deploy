@@ -11,6 +11,7 @@ export type Doc = {
   status: string;
   error: string;
   method: string;
+  report_date: string | null;
   created: number;
   pages: number;
   pending: number;

@@ -22,9 +22,9 @@ from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 
-from .contracts import Answer, BatchReview, CalendarProposal, Credentials, Question, Review, ROIRun, TaskUpdate
+from .contracts import Answer, BatchReview, CalendarProposal, Credentials, Question, ReportDateUpdate, Review, ROIRun, TaskUpdate
 from .db import APP_ROOT, DATA, Audit, Document, Fact, Job, LoginSession, Message, Session, Simulation, Task, User, audit, init_db, uid
-from .providers import MAX_BYTES, ServiceError, chat_json, ocr_configured
+from .providers import MAX_BYTES, ServiceError, chat_json, infer_report_date, ocr_configured
 from .conversation import run_conversation
 from .retrieval import EvidenceChunk, citation_payload, retrieve_evidence, sync_fact_chunk
 from .security import current_user, digest, hasher, institution_user, issue_session, rate_limit, verify_password
@@ -76,7 +76,7 @@ def file_path(doc): return DATA/"files"/doc.user_id/(doc.id+doc.extension)
 def user_json(user): return {"id":user.id,"name":user.name,"demo":user.demo,"institution_access":user.institution_access}
 def doc_json(d,facts):
     related=[f for f in facts if f.document_id==d.id]
-    return {"id":d.id,"name":d.name,"size":d.size,"status":d.status,"error":d.error,"method":d.method,"created":d.created,"pages":len(d.pages),"pending":sum(f.status=="pending" for f in related),"fact_count":len(related),"extension":d.extension}
+    return {"id":d.id,"name":d.name,"size":d.size,"status":d.status,"error":d.error,"method":d.method,"report_date":d.report_date or infer_report_date(d.pages or []),"created":d.created,"pages":len(d.pages),"pending":sum(f.status=="pending" for f in related),"fact_count":len(related),"extension":d.extension}
 def fact_json(f):
     return {k:getattr(f,k) for k in ["id","document_id","category","value","quote","page","location","status","scheduled_date","scheduled_time","scheduled_end_date","scheduled_end_time","schedule_basis","conflict","note","version"]}
 def task_json(t):
@@ -206,6 +206,15 @@ def retry(key:str,user=Depends(current_user)):
         doc.status="queued"; doc.error=""; db.commit()
     if os.getenv("VERCEL"): process_one(key)
     return {"ok":True}
+
+@app.patch("/api/documents/{key}/report-date")
+def update_report_date(key:str,body:ReportDateUpdate,user=Depends(current_user)):
+    with Session() as db:
+        doc=own(db,Document,key,user)
+        doc.report_date=body.report_date
+        audit(db,user.id,"document_report_date_updated",key,{"has_date":bool(body.report_date)})
+        db.commit()
+        return {"ok":True,"report_date":doc.report_date}
 
 @app.delete("/api/documents/{key}")
 def remove_document(key:str,user=Depends(current_user)):

@@ -13,7 +13,7 @@ from app.backend.main import app
 from app.backend.db import Session,Document,Fact,Task,Job,DATA
 from app.backend.worker import process_one
 from app.backend import providers
-from app.backend.providers import parse_pages,extract_facts,absolute_date,ServiceError,ocr_document
+from app.backend.providers import parse_pages,extract_facts,absolute_date,infer_report_date,ServiceError,ocr_document
 from app.backend.contracts import Extraction,Answer
 
 def workspace(c):
@@ -214,6 +214,23 @@ def test_relative_hour_window_uses_later_document_timestamp_as_review_candidate(
     assert (item['scheduled_date'],item['scheduled_time'])==('2024-07-11','09:14')
     assert (item['scheduled_end_date'],item['scheduled_end_time'])==('2024-07-12','09:14')
     assert '2024-07-10 09:14' in item['schedule_basis']
+
+def test_report_date_prefers_labeled_report_date_and_excludes_patient_dates():
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':'出生日期：1977-09-11\n超声检查报告 检查号：240606 日期：2024-06-06\n审核时间：2024-06-06 10:51:21'}]
+    assert infer_report_date(pages)=='2024-06-06'
+    assert infer_report_date([{'page':1,'location':'第1页','text':'出生日期：1977-09-11；就诊日期：2024-06-05'}]) is None
+
+def test_report_date_is_auto_detected_and_can_be_manually_updated(demo):
+    created=upload(demo,'超声检查报告\n日期：2030-09-10\n诊断：测试资料。','带报告日期.txt')
+    assert process_one(created['id'])
+    document=next(d for d in workspace(demo)['documents'] if d['id']==created['id'])
+    assert document['report_date']=='2030-09-10'
+    changed=demo.patch('/api/documents/'+created['id']+'/report-date',json={'report_date':'2030-09-12'})
+    assert changed.status_code==200,changed.text
+    document=next(d for d in workspace(demo)['documents'] if d['id']==created['id'])
+    assert document['report_date']=='2030-09-12'
+    assert demo.patch('/api/documents/'+created['id']+'/report-date',json={'report_date':'2030-02-30'}).status_code==422
+    assert not any(t['fact_id'] in {f['id'] for f in workspace(demo)['facts'] if f['document_id']==created['id']} for t in workspace(demo)['tasks'])
 
 def test_relative_week_schedule_uses_nearest_prior_treatment_date():
     pages=[{'page':1,'location':'第1页 · OCR识别','text':'处理意见：2024-7-9行第1周期PCb-EC方案治疗。离院建议：2、三周后返院行下一周期化疗；日期：2024年07月10日 09:14。'}]

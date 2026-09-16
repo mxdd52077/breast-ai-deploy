@@ -6,7 +6,7 @@ from pathlib import Path
 from sqlalchemy import and_, or_, select, update
 
 from .db import DATA, Document, Fact, Job, Session, User, audit, uid
-from .providers import ServiceError, extract_facts, parse_pages
+from .providers import ServiceError, extract_facts, infer_report_date, parse_pages
 from .retrieval import sync_fact_chunk
 from .storage import get
 
@@ -40,7 +40,7 @@ def process_one(document_id=None):
                 conflict=any(f.category==data["category"] and f.value!=data["value"] and f.scheduled_date and data["scheduled_date"] and f.scheduled_date!=data["scheduled_date"] for f in existing)
                 fact=Fact(user_id=user_id,document_id=doc_id,**data,status="pending",conflict=conflict)
                 db.add(fact); db.flush(); sync_fact_chunk(db,fact,doc)
-            doc.pages=pages; doc.method=method; doc.status="ready"; job.state="done"; job.lease=0
+            doc.pages=pages; doc.report_date=infer_report_date(pages); doc.method=method; doc.status="ready"; job.state="done"; job.lease=0
             audit(db,user_id,"document_processed",doc_id,{"fact_count":len(items)})
             db.commit()
     except Exception as exc:

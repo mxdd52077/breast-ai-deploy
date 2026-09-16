@@ -50,6 +50,20 @@ def absolute_date(quote):
             if hour<24 and minute<60: clock=f"{hour:02}:{minute:02}"
     return value,clock
 
+def infer_report_date(pages):
+    """Return an explicitly labelled report date without treating patient dates as reports."""
+    text="\n".join(str(page.get("text", "")) for page in pages)
+    patterns=[
+        r"(?:报告日期|检查日期|检验日期|报告时间|检查时间)\s*[:：]?\s*(20\d{2})\s*[年/.-]\s*(\d{1,2})\s*[月/.-]\s*(\d{1,2})(?:日)?",
+        r"(?<!出生)(?<!就诊)(?<!入院)(?<!出院)(?<!治疗)(?<!手术)日期\s*[:：]\s*(20\d{2})\s*[年/.-]\s*(\d{1,2})\s*[月/.-]\s*(\d{1,2})(?:日)?",
+        r"(?:审核时间|签发日期|签发时间)\s*[:：]?\s*(20\d{2})\s*[年/.-]\s*(\d{1,2})\s*[月/.-]\s*(\d{1,2})(?:日)?",
+    ]
+    for pattern in patterns:
+        for match in re.finditer(pattern,text):
+            try:return date(*map(int,match.groups())).isoformat()
+            except ValueError:continue
+    return None
+
 def infer_relative_schedules(pages):
     """Create review-only schedule windows grounded in a later page timestamp."""
     window=re.compile(r"((?:化疗|治疗|输注|用药|手术)\s*结束\s*后\s*(\d{1,3})\s*小时\s*(?:至|到|[-—~～])\s*(\d{1,3})\s*小时[^。；\n]{0,120})")

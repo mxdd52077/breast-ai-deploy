@@ -767,6 +767,39 @@ textarea {
 .fact-panel h2 {
   margin-bottom: 22px;
 }
+.report-date-editor {
+  margin-bottom: 22px;
+  padding: 14px;
+  border: 1px solid #eadfdb;
+  border-radius: 10px;
+  background: #fffaf8;
+}
+.report-date-heading,
+.report-date-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.report-date-heading {
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.report-date-heading small,
+.report-date-editor p {
+  color: var(--muted);
+  font-weight: 400;
+}
+.report-date-controls input {
+  flex: 1;
+  width: 100%;
+}
+.report-date-editor p {
+  margin: 9px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
 .fact-picker label {
   font-size: 12px;
   color: var(--muted);

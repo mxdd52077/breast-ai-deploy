@@ -46,6 +46,16 @@ class BatchReview(Strict):
 class Question(Strict):
     question:str=Field(min_length=1,max_length=1500)
 
+class ReportDateUpdate(Strict):
+    report_date:str | None=Field(default=None,pattern=r"^\d{4}-\d{2}-\d{2}$")
+
+    @model_validator(mode="after")
+    def valid_report_date(self):
+        if self.report_date:
+            from datetime import date
+            date.fromisoformat(self.report_date)
+        return self
+
 class CalendarProposal(Strict):
     has_action:bool=False
     title:str=Field(default="",max_length=120)

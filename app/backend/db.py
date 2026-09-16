@@ -74,6 +74,7 @@ class Document(Base):
     status: Mapped[str] = mapped_column(String(32), default="queued")
     error: Mapped[str] = mapped_column(Text, default="")
     method: Mapped[str] = mapped_column(String(60), default="")
+    report_date: Mapped[str | None] = mapped_column(String(10), nullable=True)
     created: Mapped[float] = mapped_column(Float, default=time.time)
 
 class Job(Base):

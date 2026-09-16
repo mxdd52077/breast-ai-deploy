@@ -96,6 +96,7 @@ export default function App() {
     [taskFilter, setTaskFilter] = useState("upcoming");
   const [source, setSource] = useState<Source | null>(null),
     [note, setNote] = useState(""),
+    [reportDate, setReportDate] = useState(""),
     [scheduleDate, setScheduleDate] = useState(""),
     [scheduleTime, setScheduleTime] = useState(""),
     [scheduleEndDate, setScheduleEndDate] = useState(""),
@@ -246,6 +247,10 @@ export default function App() {
     docFacts.find((f) => f.id === reviewFact) ||
     docFacts.find((f) => f.status === "pending") ||
     docFacts[0];
+  const reviewDocument = data.documents.find((d) => d.id === reviewDoc);
+  useEffect(() => {
+    setReportDate(reviewDocument?.report_date || "");
+  }, [reviewDocument?.id, reviewDocument?.report_date]);
   useEffect(() => {
     setScheduleDate(currentFact?.scheduled_date || "");
     setScheduleTime(currentFact?.scheduled_time || "");
@@ -274,6 +279,17 @@ export default function App() {
       status === "confirmed"
         ? "核对结果已保存，照护计划已同步。"
         : "核对结果已保存。",
+    );
+  }
+  async function saveReportDate() {
+    if (!reviewDoc || !reportDate) return;
+    await action(
+      () =>
+        api("/documents/" + reviewDoc + "/report-date", {
+          method: "PATCH",
+          body: JSON.stringify({ report_date: reportDate }),
+        }),
+      "报告日期已保存。",
     );
   }
   async function updateTask(task: Task, status: string) {
@@ -315,6 +331,7 @@ export default function App() {
     setConfirmDelete(null);
     setUploadOpen(false);
     setNote("");
+    setReportDate("");
     setQuery("");
     setService(null);
     setError("");
@@ -907,6 +924,36 @@ export default function App() {
                 </section>
                 <section className="panel fact-panel">
                   <h2>待核对事项</h2>
+                  <div className="report-date-editor">
+                    <div className="report-date-heading">
+                      <span>当前报告日期</span>
+                      <small>
+                        {reviewDocument?.report_date
+                          ? "已自动识别，可手动修改"
+                          : "未自动识别，请手动填写"}
+                      </small>
+                    </div>
+                    <div className="report-date-controls">
+                      <input
+                        type="date"
+                        aria-label="当前报告日期"
+                        value={reportDate}
+                        onChange={(e) => setReportDate(e.target.value)}
+                      />
+                      <button
+                        className="outline small"
+                        disabled={
+                          busy ||
+                          !reportDate ||
+                          reportDate === (reviewDocument?.report_date || "")
+                        }
+                        onClick={() => void saveReportDate()}
+                      >
+                        保存日期
+                      </button>
+                    </div>
+                    <p>用于标记这份报告本身，不会自动加入照护日程。</p>
+                  </div>
                   {currentFact ? (
                     <>
                       <div className="fact-picker">
