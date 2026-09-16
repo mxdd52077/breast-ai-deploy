@@ -252,6 +252,21 @@ def test_relative_schedule_merges_with_kimi_quote_prefix(monkeypatch):
     assert len(treatment)==1
     assert treatment[0]['scheduled_date']=='2024-07-30'
 
+def test_postoperative_and_post_discharge_schedules_use_named_anchors(monkeypatch):
+    monkeypatch.setenv('APEX_LLM_API_KEY','test')
+    text=('入院后于2024年12月26日在全麻下行左侧乳房重建术，手术顺利。'
+          '出院时间：2024年12月27日 07:40。出院医嘱：乳房重建患者术后第五天到华西医院查看切口情况，'
+          '出院2周后到门诊病理科领取术后病理报告。')
+    quote='乳房重建患者术后第五天到华西医院查看切口情况，出院2周后到门诊病理科领取术后病理报告'
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    extracted=Extraction.model_validate({'facts':[{'quote':quote,'page':1,'category':'复诊','is_schedule':True,'scheduled_date':None,'scheduled_time':None}]})
+    monkeypatch.setattr('app.backend.providers.chat_json',lambda *args:extracted)
+    facts,_=extract_facts(pages)
+    schedules=[item for item in facts if item['scheduled_date']]
+    assert [(item['scheduled_date'],item['scheduled_time']) for item in schedules]==[('2024-12-31',None),('2025-01-10',None)]
+    assert all('人工核对' in item['schedule_basis'] for item in schedules)
+    assert not any(item['quote']==quote for item in facts)
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
