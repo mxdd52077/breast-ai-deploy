@@ -294,6 +294,15 @@ def test_existing_document_can_recognize_relative_schedules_without_reupload(dem
     again=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
     assert again.status_code==200 and again.json()['added']==0
 
+def test_schedule_recognition_ignores_trailing_quote_punctuation(demo):
+    text='于2024年12月26日行乳房重建术。乳房重建患者术后第五天到医院查看切口。'
+    created=upload(demo,text,'标点测试.txt')
+    assert process_one(created['id'])
+    first=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert first.status_code==200
+    dates=[f['scheduled_date'] for f in workspace(demo)['facts'] if f['document_id']==created['id'] and f['scheduled_date']]
+    assert dates==['2024-12-31']
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])

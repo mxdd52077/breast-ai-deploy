@@ -223,11 +223,12 @@ def recognize_document_schedules(key:str,user=Depends(current_user)):
         if doc.status!="ready": raise HTTPException(409,"资料尚未整理完成，请稍后重试。")
         pages=doc.pages or []
         source={page.get("page"):page for page in pages}
-        existing={(fact.page,clean(fact.quote)) for fact in db.scalars(select(Fact).where(Fact.document_id==key)).all()}
+        def schedule_key(page,quote):return (page,re.sub(r"[。；，,、.]+$","",clean(quote)))
+        existing={schedule_key(fact.page,fact.quote) for fact in db.scalars(select(Fact).where(Fact.document_id==key)).all()}
         added=[]
         for item in infer_relative_schedules(pages):
             page=source.get(item["page"])
-            identity=(item["page"],clean(item["quote"]))
+            identity=schedule_key(item["page"],item["quote"])
             if not page or identity in existing or clean(item["quote"]) not in clean(page.get("text","")):continue
             fact=Fact(user_id=user.id,document_id=key,**item,status="pending")
             db.add(fact);db.flush();sync_fact_chunk(db,fact,doc)
