@@ -91,6 +91,7 @@ def test_report_request_uses_fixed_sections_and_more_verified_sources(monkeypatc
                 ],
                 'pending_items':['下一步时间仍需确认'],
                 'visit_preparation':[],
+                'visit_suggestions':[{'text':'复诊时请向治疗团队核对下一次就诊时间。','source_id':knowledge()[0].id}],
                 'safety_note':'涉及治疗与用药请咨询治疗团队。',
                 'citations':[knowledge()[0].id],
             })
@@ -98,10 +99,22 @@ def test_report_request_uses_fixed_sections_and_more_verified_sources(monkeypatc
     answer,_=run_conversation('请根据已确认资料生成一份规范照护报告',[],knowledge(),retrieve,generate)
     assert limits==[8]
     assert captured['schema']=='CareReport'
-    assert all(title in captured['system'] for title in ['资料概况','关键发现','治疗与用药','时间安排','待确认事项','就诊准备'])
-    assert all(title in answer.answer for title in ['一、资料概况','二、关键发现','三、治疗与用药','四、时间安排','五、待确认事项','六、就诊准备','重要说明'])
+    assert all(title in captured['system'] for title in ['资料概况','关键发现','治疗与用药','时间安排','待确认事项','就诊准备','就诊建议'])
+    assert all(title in answer.answer for title in ['一、资料概况','二、关键发现','三、治疗与用药','四、时间安排','五、待确认事项','六、就诊准备','七、就诊建议','重要说明'])
+    assert '复诊时请向治疗团队核对下一次就诊时间。｜来源：' in answer.answer
     assert '未在已确认资料中找到' in answer.answer
     assert '日期：待补充｜时间：待补充' in answer.answer
     assert '日期：2026-09-17｜时间：09:00' in answer.answer
     assert '请到“我的档案 → 待核对事项”补充' in answer.answer
     assert knowledge()[0].id not in answer.answer
+
+def test_report_rejects_visit_suggestion_with_unknown_source(monkeypatch):
+    from app.backend.main import knowledge
+    monkeypatch.setenv('APEX_LLM_API_KEY','fake-only')
+    def generate(system,content,schema):
+        return schema.model_validate({
+            'visit_suggestions':[{'text':'核对复诊安排。','source_id':'invented-source'}],
+            'citations':[knowledge()[0].id],
+        })
+    with pytest.raises(ServiceError,match='来源无法验证'):
+        run_conversation('请生成照护报告',[],knowledge(),lambda q,library,limit:library[:1],generate)

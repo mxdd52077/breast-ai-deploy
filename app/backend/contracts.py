@@ -108,6 +108,10 @@ class ReportScheduleItem(Strict):
     scheduled_time:str | None=Field(default=None,pattern=r"^(?:[01]\d|2[0-3]):[0-5]\d$")
     source_id:str=Field(min_length=1,max_length=200)
 
+class ReportVisitSuggestion(Strict):
+    text:str=Field(min_length=1,max_length=300)
+    source_id:str=Field(min_length=1,max_length=200)
+
 class CareReport(Strict):
     summary:list[ReportItem]=Field(default_factory=list,max_length=12)
     key_findings:list[ReportItem]=Field(default_factory=list,max_length=20)
@@ -115,6 +119,7 @@ class CareReport(Strict):
     schedule:list[ReportScheduleItem]=Field(default_factory=list,max_length=20)
     pending_items:list[ReportItem]=Field(default_factory=list,max_length=20)
     visit_preparation:list[ReportItem]=Field(default_factory=list,max_length=20)
+    visit_suggestions:list[ReportVisitSuggestion]=Field(default_factory=list,max_length=5)
     safety_note:str=Field(default="涉及治疗与用药，请以治疗团队意见为准。",max_length=500)
     citations:list[str]=Field(default_factory=list,max_length=20)
 
