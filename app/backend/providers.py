@@ -74,6 +74,7 @@ def infer_relative_schedules(pages):
     surgery_anchor=re.compile(date_text+r"[^。；\n]{0,140}(?:行|接受)[^。；\n]{0,100}(?:手术|术)")
     discharge_anchor=re.compile(r"(?:出院时间|出院日期)\s*[:：]?\s*"+date_text)
     postoperative=re.compile(r"((?:乳房重建患者)?术后第?([一二三四五六七八九十\d]{1,3})(?:天|日)[^。；，,\n]{0,120})")
+    postoperative_window=re.compile(r"(术后\s*(\d{1,2})\s*(?:–|—|－|~|～|-|至|到)\s*(\d{1,2})\s*(?:天|日)\s*拆线)")
     after_discharge=re.compile(r"(出院\s*([一二三四五六七八九十\d]{1,3})\s*(天|日|周)后[^。；，,\n]{0,120})")
 
     def count(raw):
@@ -117,6 +118,11 @@ def infer_relative_schedules(pages):
         surgery=next((anchor_day(match) for match in surgery_anchor.finditer(text) if anchor_day(match)),None)
         discharge=next((anchor_day(match) for match in discharge_anchor.finditer(text) if anchor_day(match)),None)
         if surgery:
+            for match in postoperative_window.finditer(text):
+                start_days,end_days=map(int,match.group(2,3))
+                if not (0<start_days<=end_days<=90):continue
+                start=surgery+timedelta(days=start_days);end=surgery+timedelta(days=end_days)
+                inferred.append({"category":"复诊","value":match.group(1),"quote":match.group(1),"page":page["page"],"location":page["location"],"scheduled_date":start.isoformat(),"scheduled_time":None,"scheduled_end_date":end.isoformat(),"scheduled_end_time":None,"schedule_basis":f"依据同页手术日期 {surgery.isoformat()}，按原文术后 {start_days}–{end_days} 天推算日期窗口；这不是连续治疗，实际拆线日和计日方式请向治疗团队核对。"})
             for match in postoperative.finditer(text):
                 days=count(match.group(2))
                 if not (0<days<=90):continue

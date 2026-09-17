@@ -1091,7 +1091,9 @@ export default function App() {
                       ) && (
                         <div className="schedule-editor">
                           <label className="field">
-                            开始日期
+                            {currentFact.schedule_basis.includes("日期窗口")
+                              ? "最早日期（候选）"
+                              : "开始日期"}
                             <input
                               type="date"
                               value={scheduleDate}
@@ -1107,7 +1109,9 @@ export default function App() {
                             />
                           </label>
                           <label className="field">
-                            结束日期（可选）
+                            {currentFact.schedule_basis.includes("日期窗口")
+                              ? "最晚日期（候选）"
+                              : "结束日期（可选）"}
                             <input
                               type="date"
                               value={scheduleEndDate}

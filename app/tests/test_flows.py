@@ -314,6 +314,33 @@ def test_long_ocr_surgery_description_still_anchors_postoperative_followup():
     assert sorted(item['scheduled_date'] for item in items)==['2024-12-31','2025-01-10']
     assert any('手术日期 2024-12-26' in item['schedule_basis'] for item in items)
 
+def test_postoperative_suture_removal_window_is_separate_from_recurring_and_conditional_care():
+    text=('于2024年12月26日在全麻下行乳房重建术。出院医嘱：'
+          '每周更换伤口敷料2–3次及引流管，提前挂号换药；'
+          '重建患者腋窝切口术后10–14天拆线；乳房切口不拆线让其自行脱落或6周后拆线。')
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    items=providers.infer_relative_schedules(pages)
+    assert len(items)==1
+    item=items[0]
+    assert item['quote']=='术后10–14天拆线'
+    assert (item['scheduled_date'],item['scheduled_end_date'])==('2025-01-05','2025-01-09')
+    assert item['scheduled_time'] is None and item['scheduled_end_time'] is None
+    assert '日期窗口' in item['schedule_basis']
+
+def test_existing_document_backfills_suture_removal_window(demo):
+    text=('于2024年12月26日行乳房重建术。'
+          '每周更换伤口敷料2-3次；腋窝切口术后10-14天拆线；乳房切口自行脱落或6周后拆线。')
+    created=upload(demo,text,'拆线旧资料.txt')
+    assert process_one(created['id'])
+    with Session() as db:
+        for fact in db.query(Fact).filter(Fact.document_id==created['id']).all():db.delete(fact)
+        db.commit()
+    response=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert response.status_code==200 and response.json()['added']==1
+    fact=next(f for f in workspace(demo)['facts'] if f['document_id']==created['id'])
+    assert (fact['scheduled_date'],fact['scheduled_end_date'])==('2025-01-05','2025-01-09')
+    assert fact['status']=='pending' and '日期窗口' in fact['schedule_basis']
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
