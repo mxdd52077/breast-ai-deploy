@@ -1093,7 +1093,7 @@ export default function App() {
                           currentFact.category,
                         ) && (
                           <p className="notice-box">
-                            这条原始事项没有独立日期，确认后不会自动生成日程。若原文含“术后 10–14 天”等安排，请查看下方已拆分候选，或
+                            这条原始事项没有独立日期，确认后不会自动生成日程。{relatedDatedFacts.length > 0 ? "请分别核对下方已拆分的日期候选；如有遗漏，可" : "如原文有相对时间安排，可"}
                             <button
                               className="text-btn"
                               disabled={busy || !reviewDoc}
