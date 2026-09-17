@@ -55,6 +55,7 @@ import {
 import { Badge, Calendar, Empty, Modal, TaskRow } from "./components";
 import Institution from "./Institution";
 import OriginalPreview from "./OriginalPreview";
+import { relatedDatedFacts } from "./scheduleReview";
 
 type Page = "home" | "documents" | "care" | "chat" | "settings" | "institution";
 const labels: Record<Page, string> = {
@@ -266,14 +267,7 @@ export default function App() {
     docFacts.find((f) => f.id === reviewFact) ||
     docFacts.find((f) => f.status === "pending") ||
     docFacts[0];
-  const relatedDatedFacts = currentFact && !currentFact.scheduled_date
-    ? docFacts.filter(
-        (f) =>
-          f.id !== currentFact.id &&
-          !!f.scheduled_date &&
-          currentFact.quote.replace(/\s+/g, "").includes(f.quote.replace(/\s+/g, "")),
-      )
-    : [];
+  const relatedDatedFactsForCurrent = relatedDatedFacts(currentFact, docFacts);
   const reviewDocument = data.documents.find((d) => d.id === reviewDoc);
   useEffect(() => {
     setReportDate(reviewDocument?.report_date || "");
@@ -1093,7 +1087,7 @@ export default function App() {
                           currentFact.category,
                         ) && (
                           <p className="notice-box">
-                            这条原始事项没有独立日期，确认后不会自动生成日程。{relatedDatedFacts.length > 0 ? "请分别核对下方已拆分的日期候选；如有遗漏，可" : "如原文有相对时间安排，可"}
+                            这条原始事项没有独立日期，确认后不会自动生成日程。{relatedDatedFactsForCurrent.length > 0 ? "请分别核对下方已拆分的日期候选；如有遗漏，可" : "如原文有相对时间安排，可"}
                             <button
                               className="text-btn"
                               disabled={busy || !reviewDoc}
@@ -1104,10 +1098,10 @@ export default function App() {
                             。
                           </p>
                         )}
-                      {relatedDatedFacts.length > 0 && (
+                      {relatedDatedFactsForCurrent.length > 0 && (
                         <div className="notice-box">
-                          <strong>这条原始摘录包含已拆分的时间事项，请分别核对：</strong>
-                          {relatedDatedFacts.map((candidate) => (
+                          <strong>这条事项包含已拆分的时间安排，请分别核对：</strong>
+                          {relatedDatedFactsForCurrent.map((candidate) => (
                             <button
                               key={candidate.id}
                               className="outline small"
