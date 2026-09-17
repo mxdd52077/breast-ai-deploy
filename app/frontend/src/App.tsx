@@ -194,8 +194,26 @@ export default function App() {
   function openReview(id: string, factId?: string) {
     setPage("documents");
     setReviewDoc(id);
-    setReviewFact(factId || null);
+    const pendingRelative = data.facts.find(
+      (f) => f.document_id === id && f.status === "pending" && f.schedule_basis && f.scheduled_date,
+    );
+    setReviewFact(factId || pendingRelative?.id || null);
     setNote("");
+    if (!factId && data.documents.find((d) => d.id === id)?.status === "ready")
+      void recognizeSchedules(id, false);
+  }
+  async function recognizeSchedules(id: string, showEmpty: boolean) {
+    await action(async () => {
+      const result = await api<{ added: number; fact_ids: string[] }>(
+        "/documents/" + id + "/recognize-schedules",
+        { method: "POST" },
+      );
+      if (result.fact_ids[0]) setReviewFact(result.fact_ids[0]);
+      if (result.added)
+        notice(`补充识别了 ${result.added} 条时间安排，请逐条核对日期与时间。`);
+      else if (showEmpty)
+        notice("没有找到新的可核对时间安排；原有事项未被修改。");
+    });
   }
   async function action(fn: () => Promise<unknown>, success?: string) {
     setBusy(true);
@@ -949,20 +967,7 @@ export default function App() {
                       <button
                         className="outline small"
                         disabled={busy}
-                        onClick={() =>
-                          void action(async () => {
-                            const result = await api<{ added: number; fact_ids: string[] }>(
-                              "/documents/" + reviewDoc + "/recognize-schedules",
-                              { method: "POST" },
-                            );
-                            if (result.fact_ids[0]) setReviewFact(result.fact_ids[0]);
-                            notice(
-                              result.added
-                                ? `补充识别了 ${result.added} 条时间安排，请逐条核对日期与时间。`
-                                : "没有找到新的可核对时间安排；原有事项未被修改。",
-                            );
-                          })
-                        }
+                        onClick={() => void recognizeSchedules(reviewDoc, true)}
                       >
                         补充识别时间安排
                       </button>

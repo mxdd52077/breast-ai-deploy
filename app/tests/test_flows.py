@@ -303,6 +303,17 @@ def test_schedule_recognition_ignores_trailing_quote_punctuation(demo):
     dates=[f['scheduled_date'] for f in workspace(demo)['facts'] if f['document_id']==created['id'] and f['scheduled_date']]
     assert dates==['2024-12-31']
 
+def test_long_ocr_surgery_description_still_anchors_postoperative_followup():
+    text=('入院时间：2024年12月25日 07:55。出院时间：2024年12月27日 07:40。'
+          '入院后积极完善术前相关准备于2024年12月26日在全麻下行“腔镜下左侧乳腺单纯皮下切除术+'
+          '左乳前哨淋巴结切除术活检术+腔镜下胸肌后假体联合补片植入重建术+腔镜下左侧乳头乳晕整复术”。'
+          '手术经过顺利。出院医嘱及建议：乳房重建患者术后第五天到医院查看切口情况，'
+          '出院2周后到门诊病理科领取术后病理报告。')
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    items=providers.infer_relative_schedules(pages)
+    assert sorted(item['scheduled_date'] for item in items)==['2024-12-31','2025-01-10']
+    assert any('手术日期 2024-12-26' in item['schedule_basis'] for item in items)
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
