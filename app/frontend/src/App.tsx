@@ -266,6 +266,14 @@ export default function App() {
     docFacts.find((f) => f.id === reviewFact) ||
     docFacts.find((f) => f.status === "pending") ||
     docFacts[0];
+  const relatedDatedFacts = currentFact && !currentFact.scheduled_date
+    ? docFacts.filter(
+        (f) =>
+          f.id !== currentFact.id &&
+          !!f.scheduled_date &&
+          currentFact.quote.replace(/\s+/g, "").includes(f.quote.replace(/\s+/g, "")),
+      )
+    : [];
   const reviewDocument = data.documents.find((d) => d.id === reviewDoc);
   useEffect(() => {
     setReportDate(reviewDocument?.report_date || "");
@@ -1018,6 +1026,11 @@ export default function App() {
                             {docFacts.map((f, i) => (
                               <option key={f.id} value={f.id}>
                                 {i + 1}. {f.category} ·{" "}
+                                {f.value.replace(/\s+/g, " ").slice(0, 26)}
+                                {f.value.length > 26 ? "…" : ""} ·{" "}
+                                {f.scheduled_date
+                                  ? `${f.scheduled_date}${f.scheduled_end_date ? ` 至 ${f.scheduled_end_date}` : ""}`
+                                  : "日期待核对"} ·{" "}
                                 {f.status === "pending"
                                   ? "待核对"
                                   : f.status === "confirmed"
@@ -1080,9 +1093,33 @@ export default function App() {
                           currentFact.category,
                         ) && (
                           <p className="notice-box">
-                            这条信息没有明确可执行日期，确认后会保留在档案中，不自动生成日程。
+                            这条原始事项没有独立日期，确认后不会自动生成日程。若原文含“术后 10–14 天”等安排，请查看下方已拆分候选，或
+                            <button
+                              className="text-btn"
+                              disabled={busy || !reviewDoc}
+                              onClick={() => reviewDoc && void recognizeSchedules(reviewDoc, true)}
+                            >
+                              补充识别时间安排
+                            </button>
+                            。
                           </p>
                         )}
+                      {relatedDatedFacts.length > 0 && (
+                        <div className="notice-box">
+                          <strong>这条原始摘录包含已拆分的时间事项，请分别核对：</strong>
+                          {relatedDatedFacts.map((candidate) => (
+                            <button
+                              key={candidate.id}
+                              className="outline small"
+                              style={{ display: "block", marginTop: 10, textAlign: "left" }}
+                              onClick={() => setReviewFact(candidate.id)}
+                            >
+                              {candidate.value.slice(0, 32)} · {candidate.scheduled_date}
+                              {candidate.scheduled_end_date ? ` 至 ${candidate.scheduled_end_date}` : ""}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       {currentFact.schedule_basis && (
                         <p className="notice-box">{currentFact.schedule_basis}</p>
                       )}
