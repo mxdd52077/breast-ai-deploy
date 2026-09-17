@@ -224,15 +224,17 @@ def recognize_document_schedules(key:str,user=Depends(current_user)):
         pages=doc.pages or []
         source={page.get("page"):page for page in pages}
         def schedule_key(page,quote):return (page,re.sub(r"[。；，,、.]+$","",clean(quote)))
-        existing={schedule_key(fact.page,fact.quote) for fact in db.scalars(select(Fact).where(Fact.document_id==key)).all()}
+        prior=db.scalars(select(Fact).where(Fact.document_id==key)).all()
+        existing={schedule_key(fact.page,fact.quote) for fact in prior}
         added=[]
         for item in infer_relative_schedules(pages):
             page=source.get(item["page"])
             identity=schedule_key(item["page"],item["quote"])
             if not page or identity in existing or clean(item["quote"]) not in clean(page.get("text","")):continue
+            if any(fact.page==item["page"] and fact.scheduled_date==item["scheduled_date"] and fact.scheduled_end_date==item["scheduled_end_date"] and (identity[1] in schedule_key(fact.page,fact.quote)[1] or schedule_key(fact.page,fact.quote)[1] in identity[1]) for fact in prior):continue
             fact=Fact(user_id=user.id,document_id=key,**item,status="pending")
             db.add(fact);db.flush();sync_fact_chunk(db,fact,doc)
-            existing.add(identity);added.append(fact.id)
+            existing.add(identity);prior.append(fact);added.append(fact.id)
         audit(db,user.id,"document_schedules_recognized",key,{"added":len(added)})
         db.commit()
         return {"added":len(added),"fact_ids":added}

@@ -341,6 +341,19 @@ def test_existing_document_backfills_suture_removal_window(demo):
     assert (fact['scheduled_date'],fact['scheduled_end_date'])==('2025-01-05','2025-01-09')
     assert fact['status']=='pending' and '日期窗口' in fact['schedule_basis']
 
+def test_backfill_does_not_duplicate_longer_quote_for_same_window(demo):
+    text='于2024年12月26日行乳房重建术。重建患者腋窝切口术后10–14天拆线。'
+    created=upload(demo,text,'拆线去重.txt')
+    assert process_one(created['id'])
+    with Session() as db:
+        doc=db.get(Document,created['id'])
+        for old in db.query(Fact).filter(Fact.document_id==created['id']).all():db.delete(old)
+        db.flush()
+        db.add(Fact(user_id=doc.user_id,document_id=doc.id,category='复诊',value='重建患者腋窝切口术后10–14天拆线',quote='重建患者腋窝切口术后10–14天拆线',page=1,status='pending',scheduled_date='2025-01-05',scheduled_end_date='2025-01-09'))
+        db.commit()
+    result=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert result.status_code==200 and result.json()['added']==0
+
 def test_review_can_set_missing_time_and_window_before_creating_task(demo):
     created=upload(demo,'治疗安排：2030年9月10日进行治疗。','待补时间.txt')
     assert process_one(created['id'])
