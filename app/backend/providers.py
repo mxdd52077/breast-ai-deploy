@@ -75,11 +75,12 @@ def infer_relative_schedules(pages):
     discharge_anchor=re.compile(r"(?:出院时间|出院日期)\s*[:：]?\s*"+date_text)
     postoperative=re.compile(r"((?:乳房重建患者)?术后第?([一二三四五六七八九十\d]{1,3})(?:天|日)[^。；，,\n]{0,120})")
     postoperative_window=re.compile(r"(术后\s*(\d{1,2})\s*(?:–|—|－|~|～|-|至|到)\s*(\d{1,2})\s*(?:天|日)\s*拆线)")
+    postoperative_week_visit=re.compile(r"(术后\s*([一二两三四五六七八九十\d]{1,3})\s*周(?:后)?[^。；，,\n]{0,60}?(?:门诊就诊|复诊|复查))")
     after_discharge=re.compile(r"(出院\s*([一二三四五六七八九十\d]{1,3})\s*(天|日|周)后[^。；，,\n]{0,120})")
 
     def count(raw):
         if raw.isdigit():return int(raw)
-        digits={"一":1,"二":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9}
+        digits={"一":1,"二":2,"两":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9}
         if raw=="十":return 10
         if raw.startswith("十"):return 10+digits.get(raw[1:],0)
         if "十" in raw:
@@ -118,6 +119,11 @@ def infer_relative_schedules(pages):
         surgery=next((anchor_day(match) for match in surgery_anchor.finditer(text) if anchor_day(match)),None)
         discharge=next((anchor_day(match) for match in discharge_anchor.finditer(text) if anchor_day(match)),None)
         if surgery:
+            for match in postoperative_week_visit.finditer(text):
+                weeks=count(match.group(2))
+                if not (0<weeks<=52):continue
+                due=surgery+timedelta(weeks=weeks)
+                inferred.append({"category":"复诊","value":match.group(1),"quote":match.group(1),"page":page["page"],"location":page["location"],"scheduled_date":due.isoformat(),"scheduled_time":None,"scheduled_end_date":None,"scheduled_end_time":None,"schedule_basis":f"依据同页手术日期 {surgery.isoformat()}，按原文术后 {weeks} 周推算首诊候选日期；请核对医院实际预约和计日方式，后续重复复查需另行确认。"})
             for match in postoperative_window.finditer(text):
                 start_days,end_days=map(int,match.group(2,3))
                 if not (0<start_days<=end_days<=90):continue

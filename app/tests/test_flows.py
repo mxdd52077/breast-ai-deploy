@@ -327,6 +327,31 @@ def test_postoperative_suture_removal_window_is_separate_from_recurring_and_cond
     assert item['scheduled_time'] is None and item['scheduled_end_time'] is None
     assert '日期窗口' in item['schedule_basis']
 
+def test_postoperative_week_followup_is_separate_from_unspecified_recurrence():
+    text=('于2024年12月26日在全麻下行乳房重建术。'
+          '术后复查：术后两周杜正贵教授门诊就诊（已约号），后每3–6月复查一次，请自行提前2周预约挂号。')
+    pages=[{'page':1,'location':'第1页 · OCR识别','text':text}]
+    items=providers.infer_relative_schedules(pages)
+    assert len(items)==1
+    assert items[0]['scheduled_date']=='2025-01-09'
+    assert items[0]['scheduled_end_date'] is None
+    assert '术后两周' in items[0]['quote'] and '后每3' not in items[0]['quote']
+    assert '手术日期 2024-12-26' in items[0]['schedule_basis']
+
+def test_existing_document_backfills_postoperative_week_visit(demo):
+    text=('于2024年12月26日在全麻下行乳房重建术。'
+          '术后复查：术后两周杜正贵教授门诊就诊（已约号），后每3–6月复查一次。')
+    created=upload(demo,text,'术后复查旧资料.txt')
+    assert process_one(created['id'])
+    with Session() as db:
+        for fact in db.query(Fact).filter(Fact.document_id==created['id']).all():db.delete(fact)
+        db.commit()
+    response=demo.post('/api/documents/'+created['id']+'/recognize-schedules')
+    assert response.status_code==200 and response.json()['added']==1
+    fact=next(f for f in workspace(demo)['facts'] if f['document_id']==created['id'])
+    assert fact['scheduled_date']=='2025-01-09' and fact['scheduled_end_date'] is None
+    assert fact['status']=='pending'
+
 def test_existing_document_backfills_suture_removal_window(demo):
     text=('于2024年12月26日行乳房重建术。'
           '每周更换伤口敷料2-3次；腋窝切口术后10-14天拆线；乳房切口自行脱落或6周后拆线。')
